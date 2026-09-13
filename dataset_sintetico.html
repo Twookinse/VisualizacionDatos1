@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <title>Tarea 3 — Dataset Sintético bajo ISO 25012 e ISO 27701</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e1a; --bg-secondary: #111827; --bg-card: #1a2035;
+            --border-subtle: rgba(99,128,255,0.12); --border-glow: rgba(99,128,255,0.3);
+            --text-primary: #f0f2f8; --text-secondary: #9ba3bf; --text-muted: #5c6380;
+            --accent-blue: #6380ff; --accent-cyan: #38bdf8; --accent-purple: #a78bfa;
+            --accent-rose: #fb7185; --accent-emerald: #34d399; --accent-amber: #fbbf24;
+            --gradient-hero: linear-gradient(135deg, #6380ff 0%, #a78bfa 50%, #fb7185 100%);
+            --gradient-card: linear-gradient(145deg, rgba(99,128,255,0.08) 0%, rgba(167,139,250,0.04) 100%);
+            --gradient-glow: radial-gradient(ellipse at 50% 0%, rgba(99,128,255,0.15) 0%, transparent 60%);
+            --shadow-glow: 0 0 40px rgba(99,128,255,0.12);
+            --radius-sm: 8px; --radius-md: 14px; --radius-lg: 20px; --radius-xl: 28px;
+            --transition-fast: 0.2s cubic-bezier(0.4,0,0.2,1);
+            --transition-smooth: 0.4s cubic-bezier(0.4,0,0.2,1);
+        }
+        *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family:'Inter',sans-serif; background:var(--bg-primary); color:var(--text-primary); line-height:1.7; overflow-x:hidden; }
+        body::before { content:''; position:fixed; inset:0; background:var(--gradient-glow); pointer-events:none; z-index:0; }
+        .bg-orb { position:fixed; border-radius:50%; filter:blur(80px); opacity:0.07; pointer-events:none; z-index:0; animation:orbFloat 20s ease-in-out infinite; }
+        .bg-orb--1 { width:600px; height:600px; background:var(--accent-blue); top:-200px; right:-200px; }
+        .bg-orb--2 { width:500px; height:500px; background:var(--accent-purple); bottom:-100px; left:-150px; animation-delay:-7s; }
+        @keyframes orbFloat { 0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(30px,-20px) scale(1.05);} }
+        .container { max-width:1180px; margin:0 auto; padding:0 24px; position:relative; z-index:1; }
+
+        /* NAV */
+        .nav { position:sticky; top:0; z-index:100; padding:16px 0; backdrop-filter:blur(20px) saturate(180%); background:rgba(10,14,26,0.8); border-bottom:1px solid var(--border-subtle); }
+        .nav__inner { display:flex; align-items:center; justify-content:space-between; }
+        .nav__brand { display:flex; align-items:center; gap:12px; font-weight:700; font-size:1.05rem; text-decoration:none; color:var(--text-primary); }
+        .nav__icon { width:36px; height:36px; background:var(--gradient-hero); border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; font-size:1.2rem; }
+        .nav__links { display:flex; gap:6px; list-style:none; }
+        .nav__link { text-decoration:none; color:var(--text-secondary); padding:6px 14px; border-radius:var(--radius-sm); font-size:0.82rem; font-weight:500; transition:all var(--transition-fast); }
+        .nav__link:hover { color:var(--text-primary); background:rgba(99,128,255,0.1); }
+
+        /* HERO */
+        .hero { padding:70px 0 50px; text-align:center; }
+        .hero__badge { display:inline-flex; align-items:center; gap:8px; padding:6px 16px 6px 8px; background:rgba(99,128,255,0.1); border:1px solid var(--border-subtle); border-radius:100px; font-size:0.8rem; font-weight:500; color:var(--accent-blue); margin-bottom:24px; animation:fadeInUp 0.6s ease-out; }
+        .hero__badge-dot { width:8px; height:8px; background:var(--accent-emerald); border-radius:50%; animation:pulse 2s ease-in-out infinite; }
+        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.5;transform:scale(0.8);} }
+        .hero__title { font-size:clamp(2rem,4.5vw,3.2rem); font-weight:900; letter-spacing:-0.03em; line-height:1.15; margin-bottom:18px; animation:fadeInUp 0.6s ease-out 0.1s both; }
+        .hero__title-gradient { background:var(--gradient-hero); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .hero__subtitle { font-size:1.05rem; color:var(--text-secondary); max-width:700px; margin:0 auto; animation:fadeInUp 0.6s ease-out 0.2s both; }
+        @keyframes fadeInUp { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
+
+        /* SECTIONS */
+        .section { padding:50px 0; }
+        .section__number { font-family:'JetBrains Mono',monospace; font-size:0.78rem; font-weight:600; color:var(--accent-blue); letter-spacing:0.15em; text-transform:uppercase; margin-bottom:8px; }
+        .section__title { font-size:1.8rem; font-weight:800; letter-spacing:-0.02em; margin-bottom:12px; }
+        .section__desc { font-size:1rem; color:var(--text-secondary); max-width:600px; margin-bottom:36px; }
+
+        /* CARDS */
+        .card { background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:var(--radius-lg); padding:36px; margin-bottom:24px; position:relative; overflow:hidden; transition:all var(--transition-smooth); }
+        .card:hover { border-color:var(--border-glow); box-shadow:var(--shadow-glow); }
+        .card::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; border-radius:var(--radius-lg) var(--radius-lg) 0 0; }
+        .card--blue::before { background:var(--accent-blue); }
+        .card--amber::before { background:var(--accent-amber); }
+        .card--emerald::before { background:var(--accent-emerald); }
+        .card--purple::before { background:var(--accent-purple); }
+        .card--rose::before { background:var(--accent-rose); }
+        .card--cyan::before { background:var(--accent-cyan); }
+
+        .card__header { display:flex; align-items:flex-start; gap:16px; margin-bottom:20px; }
+        .card__icon { flex-shrink:0; width:52px; height:52px; border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; font-size:1.5rem; }
+        .card--blue .card__icon { background:rgba(99,128,255,0.12); }
+        .card--amber .card__icon { background:rgba(251,191,36,0.12); }
+        .card--emerald .card__icon { background:rgba(52,211,153,0.12); }
+        .card--purple .card__icon { background:rgba(167,139,250,0.12); }
+        .card--rose .card__icon { background:rgba(251,113,133,0.12); }
+        .card--cyan .card__icon { background:rgba(56,189,248,0.12); }
+
+        .card__tag { font-family:'JetBrains Mono',monospace; font-size:0.75rem; font-weight:600; letter-spacing:0.1em; margin-bottom:4px; }
+        .card--blue .card__tag { color:var(--accent-blue); }
+        .card--amber .card__tag { color:var(--accent-amber); }
+        .card--emerald .card__tag { color:var(--accent-emerald); }
+        .card--purple .card__tag { color:var(--accent-purple); }
+        .card--rose .card__tag { color:var(--accent-rose); }
+        .card--cyan .card__tag { color:var(--accent-cyan); }
+
+        .card__name { font-size:1.2rem; font-weight:800; letter-spacing:-0.02em; line-height:1.3; }
+        .card__body { color:var(--text-secondary); font-size:0.92rem; line-height:1.85; }
+        .card__body h4 { color:var(--text-primary); font-size:0.95rem; font-weight:700; margin:20px 0 10px; }
+        .card__body p { margin-bottom:12px; }
+        .card__body ul { padding-left:20px; margin-bottom:14px; }
+        .card__body li { margin-bottom:6px; }
+        .card__body li::marker { color:var(--accent-blue); }
+        .card__body strong { color:var(--text-primary); font-weight:600; }
+        .card__body em { color:var(--accent-cyan); font-style:normal; font-weight:500; }
+
+        /* COMPLIANCE GRID */
+        .compliance-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:20px; margin-top:16px; }
+        .compliance-item {
+            background:rgba(99,128,255,0.04); border:1px solid var(--border-subtle);
+            border-radius:var(--radius-md); padding:20px; transition:all var(--transition-fast);
+        }
+        .compliance-item:hover { border-color:var(--border-glow); }
+        .compliance-item__header { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+        .compliance-item__check { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.85rem; flex-shrink:0; }
+        .check--green { background:rgba(52,211,153,0.15); color:var(--accent-emerald); }
+        .compliance-item__title { font-size:0.9rem; font-weight:700; color:var(--text-primary); }
+        .compliance-item__desc { font-size:0.83rem; color:var(--text-secondary); line-height:1.7; }
+        .compliance-item__field { font-family:'JetBrains Mono',monospace; font-size:0.75rem; color:var(--accent-cyan); background:rgba(56,189,248,0.08); padding:2px 8px; border-radius:4px; display:inline-block; margin-top:8px; }
+
+        /* DATA TABLE */
+        .table-wrap { overflow-x:auto; border-radius:var(--radius-md); border:1px solid var(--border-subtle); }
+        .data-table { width:100%; border-collapse:collapse; font-size:0.78rem; }
+        .data-table th { background:rgba(99,128,255,0.08); padding:12px 14px; text-align:left; font-weight:600; color:var(--text-primary); border-bottom:1px solid var(--border-subtle); white-space:nowrap; position:sticky; top:0; }
+        .data-table td { padding:10px 14px; border-bottom:1px solid rgba(99,128,255,0.06); color:var(--text-secondary); white-space:nowrap; }
+        .data-table tr:hover td { background:rgba(99,128,255,0.04); }
+
+        .tag-inline { display:inline-block; padding:2px 8px; border-radius:100px; font-size:0.7rem; font-weight:600; }
+        .tag--yes { background:rgba(52,211,153,0.12); color:var(--accent-emerald); }
+        .tag--no { background:rgba(251,113,133,0.12); color:var(--accent-rose); }
+        .tag--info { background:rgba(56,189,248,0.12); color:var(--accent-cyan); }
+
+        /* SCHEMA */
+        .schema-block {
+            background:rgba(17,24,39,0.8); border:1px solid var(--border-subtle);
+            border-radius:var(--radius-md); padding:24px; margin-top:16px;
+            font-family:'JetBrains Mono',monospace; font-size:0.82rem;
+            color:var(--accent-cyan); line-height:2; overflow-x:auto;
+        }
+        .schema-block .comment { color:var(--text-muted); }
+        .schema-block .field { color:var(--accent-emerald); }
+        .schema-block .type { color:var(--accent-purple); }
+        .schema-block .desc { color:var(--text-secondary); }
+
+        .divider { height:1px; background:linear-gradient(to right,transparent,var(--border-subtle),transparent); margin:20px 0; }
+
+        /* FOOTER */
+        .footer { padding:40px 0; border-top:1px solid var(--border-subtle); margin-top:40px; }
+        .footer__inner { display:flex; align-items:center; justify-content:space-between; font-size:0.85rem; color:var(--text-muted); }
+        .footer__tool { display:flex; align-items:center; gap:8px; }
+        .footer__dot { width:6px; height:6px; background:var(--accent-emerald); border-radius:50%; }
+
+        .reveal { opacity:0; transform:translateY(30px); transition:all 0.7s cubic-bezier(0.4,0,0.2,1); }
+        .reveal.visible { opacity:1; transform:translateY(0); }
+
+        @media (max-width:768px) {
+            .nav__links { display:none; }
+            .hero { padding:40px 0 30px; }
+            .card { padding:24px; }
+            .card__header { flex-direction:column; gap:12px; }
+            .compliance-grid { grid-template-columns:1fr; }
+            .footer__inner { flex-direction:column; gap:12px; text-align:center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-orb bg-orb--1"></div>
+    <div class="bg-orb bg-orb--2"></div>
+
+    <!-- Nav -->
+    <nav class="nav">
+        <div class="container nav__inner">
+            <a href="#" class="nav__brand">
+                <div class="nav__icon">🧬</div>
+                Dataset Sintético
+            </a>
+            <ul class="nav__links">
+                <li><a href="#overview" class="nav__link">Resumen</a></li>
+                <li><a href="#schema" class="nav__link">Esquema</a></li>
+                <li><a href="#iso25012" class="nav__link">ISO 25012</a></li>
+                <li><a href="#iso27701" class="nav__link">ISO 27701</a></li>
+                <li><a href="#dataset" class="nav__link">Dataset</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <header class="hero">
+        <div class="container">
+            <div class="hero__badge">
+                <span class="hero__badge-dot"></span>
+                Tarea 3 — Datos Artificiales
+            </div>
+            <h1 class="hero__title">
+                Dataset Sintético bajo<br>
+                <span class="hero__title-gradient">ISO/IEC 25012 e ISO/IEC 27701</span>
+            </h1>
+            <p class="hero__subtitle">
+                30 registros de pacientes de una clínica médica ficticia, diseñados desde cero para cumplir con los requisitos de calidad de datos (ISO 25012) y gestión de privacidad (ISO 27701).
+            </p>
+        </div>
+    </header>
+
+    <!-- ═══════════════════════════════════════
+         SECTION 1: OVERVIEW
+         ═══════════════════════════════════════ -->
+    <section class="section" id="overview">
+        <div class="container">
+            <div class="section__header">
+                <div class="section__number">01 — Descripción General</div>
+                <h2 class="section__title">Resumen del Dataset</h2>
+                <p class="section__desc">Contexto, dominio y normativas aplicadas al diseño del dataset sintético.</p>
+            </div>
+
+            <div class="card card--blue reveal">
+                <div class="card__header">
+                    <div class="card__icon">🏥</div>
+                    <div>
+                        <div class="card__tag">CONTEXTO DEL DATASET</div>
+                        <div class="card__name">Registros Clínicos — Clínica San Rafael (Ficticia)</div>
+                    </div>
+                </div>
+                <div class="card__body">
+                    <p><strong>Dominio:</strong> Salud / Registros médicos de pacientes.</p>
+                    <p><strong>Justificación del dominio:</strong> El sector salud es uno de los más exigentes en términos de calidad de datos (errores pueden comprometer tratamientos) y privacidad (los datos médicos son datos sensibles/especiales). Esto hace que sea el escenario ideal para demostrar la aplicación rigurosa de ambas normativas.</p>
+
+                    <h4>Ficha Técnica</h4>
+                    <ul>
+                        <li><strong>Total de registros:</strong> 30 pacientes</li>
+                        <li><strong>Total de columnas:</strong> 24 variables</li>
+                        <li><strong>Formato:</strong> CSV (dataset_sintetico.csv)</li>
+                        <li><strong>Valores nulos:</strong> 0 (completitud del 100%)</li>
+                        <li><strong>Normativa 1:</strong> <em>ISO/IEC 25012:2008</em> — Modelo de Calidad de Datos</li>
+                        <li><strong>Normativa 2:</strong> <em>ISO/IEC 27701:2019</em> — Gestión de Privacidad de la Información</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container"><div class="divider"></div></div>
+
+    <!-- ═══════════════════════════════════════
+         SECTION 2: SCHEMA
+         ═══════════════════════════════════════ -->
+    <section class="section" id="schema">
+        <div class="container">
+            <div class="section__header">
+                <div class="section__number">02 — Estructura</div>
+                <h2 class="section__title">Esquema del Dataset</h2>
+                <p class="section__desc">Las 24 columnas diseñadas intencionalmente para cumplir con ambas normativas.</p>
+            </div>
+
+            <div class="card card--purple reveal">
+                <div class="card__header">
+                    <div class="card__icon">📋</div>
+                    <div>
+                        <div class="card__tag">DICCIONARIO DE DATOS</div>
+                        <div class="card__name">Descripción de cada variable</div>
+                    </div>
+                </div>
+                <div class="card__body">
+                    <div class="schema-block">
+<span class="comment">── IDENTIFICACIÓN (con pseudonimización) ──</span>
+<span class="field">PatientID</span>         <span class="type">STRING</span>   <span class="desc">// ID único alfanumérico (PAC-XXXX). No es dato personal.</span>
+<span class="field">FullName</span>          <span class="type">STRING</span>   <span class="desc">// Nombre completo del paciente (dato personal).</span>
+<span class="field">DateOfBirth</span>       <span class="type">DATE</span>     <span class="desc">// Fecha de nacimiento (YYYY-MM-DD). Formato ISO 8601.</span>
+<span class="field">Age</span>               <span class="type">INTEGER</span>  <span class="desc">// Edad calculada. Derivada de DateOfBirth para consistencia.</span>
+<span class="field">Gender</span>            <span class="type">CHAR(1)</span>  <span class="desc">// M = Masculino, F = Femenino. Categoría controlada.</span>
+
+<span class="comment">── CONTACTO (pseudonimizado por ISO 27701) ──</span>
+<span class="field">Email</span>             <span class="type">STRING</span>   <span class="desc">// Email enmascarado (m****a@dominio). Pseudonimización.</span>
+<span class="field">PhoneHashed</span>       <span class="type">STRING</span>   <span class="desc">// Teléfono hasheado (irreversible). Protección máxima.</span>
+
+<span class="comment">── DATOS CLÍNICOS ──</span>
+<span class="field">BloodType</span>         <span class="type">STRING</span>   <span class="desc">// Tipo de sangre. Valores controlados: A±, B±, AB±, O±.</span>
+<span class="field">PrimaryDiagnosis</span>  <span class="type">STRING</span>   <span class="desc">// Diagnóstico principal en texto legible.</span>
+<span class="field">DiagnosisCode_ICD10</span> <span class="type">STRING</span> <span class="desc">// Código ICD-10 estandarizado. Garantiza interoperabilidad.</span>
+<span class="field">TreatmentStatus</span>   <span class="type">STRING</span>   <span class="desc">// Estado actual: Activo, Seguimiento, Hospitalizado, Alta.</span>
+<span class="field">AdmissionDate</span>     <span class="type">DATE</span>     <span class="desc">// Fecha de admisión (YYYY-MM-DD).</span>
+<span class="field">DischargeDate</span>     <span class="type">DATE</span>     <span class="desc">// Fecha de alta (vacío si aún en tratamiento).</span>
+<span class="field">AttendingPhysicianID</span> <span class="type">STRING</span> <span class="desc">// ID del médico (MED-XXX). No nombre, por privacidad.</span>
+<span class="field">InsuranceProvider</span> <span class="type">STRING</span>   <span class="desc">// Aseguradora. Valores controlados de un catálogo.</span>
+
+<span class="comment">── CONSENTIMIENTO Y PRIVACIDAD (ISO 27701) ──</span>
+<span class="field">ConsentDataProcessing</span> <span class="type">BOOLEAN</span> <span class="desc">// ¿Consintió el procesamiento de datos? Siempre TRUE.</span>
+<span class="field">ConsentResearch</span>   <span class="type">BOOLEAN</span>  <span class="desc">// ¿Consintió uso para investigación? Granular.</span>
+<span class="field">ConsentMarketing</span>  <span class="type">BOOLEAN</span>  <span class="desc">// ¿Consintió comunicaciones comerciales? Granular.</span>
+<span class="field">DataPurpose</span>       <span class="type">STRING</span>   <span class="desc">// Propósito declarado: "Tratamiento Médico".</span>
+<span class="field">LegalBasis</span>        <span class="type">STRING</span>   <span class="desc">// Base legal: Consentimiento Explícito / Interés Vital.</span>
+
+<span class="comment">── GOBERNANZA Y TRAZABILIDAD (ISO 25012) ──</span>
+<span class="field">DataRetentionYears</span> <span class="type">INTEGER</span> <span class="desc">// Años de retención definidos: 5 (alta) o 10 (activo).</span>
+<span class="field">LastUpdated</span>       <span class="type">DATE</span>     <span class="desc">// Última actualización del registro. Garantiza actualidad.</span>
+<span class="field">RecordSource</span>      <span class="type">STRING</span>   <span class="desc">// Sistema de origen. Trazabilidad de procedencia.</span>
+<span class="field">DataQualityScore</span>  <span class="type">FLOAT</span>    <span class="desc">// Score de calidad 0-1 calculado automáticamente.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container"><div class="divider"></div></div>
+
+    <!-- ═══════════════════════════════════════
+         SECTION 3: ISO 25012 COMPLIANCE
+         ═══════════════════════════════════════ -->
+    <section class="section" id="iso25012">
+        <div class="container">
+            <div class="section__header">
+                <div class="section__number">03 — Normativa 1</div>
+                <h2 class="section__title">Cumplimiento ISO/IEC 25012</h2>
+                <p class="section__desc">Cómo la estructura del dataset satisface las características de calidad de datos definidas en la norma.</p>
+            </div>
+
+            <div class="card card--emerald reveal">
+                <div class="card__header">
+                    <div class="card__icon">📐</div>
+                    <div>
+                        <div class="card__tag">ISO/IEC 25012:2008</div>
+                        <div class="card__name">Modelo de Calidad de Datos — 10 Características Aplicadas</div>
+                    </div>
+                </div>
+                <div class="card__body">
+                    <p>La ISO/IEC 25012 define 15 características de calidad de datos. A continuación se demuestra cómo <strong>10 de ellas</strong> se implementan directamente en el diseño del dataset:</p>
+                </div>
+            </div>
+
+            <div class="compliance-grid reveal">
+                <!-- 1. Exactitud -->
+                <div class="compliance-item">
+                    <div class="compliance-item__header">
+                        <div class="compliance-item__check check--green">✓</div>
+                        <div class="compliance-item__title">1. Exactitud (Accuracy)</div>
+                    </div>
+                    <div class="compliance-item__desc">
+                        Los diagnósticos incluyen tanto texto descriptivo como <strong>código ICD-10 estandarizado</strong> internacional, garantizando que cada diagnóstico sea exacto y verificable contra una referencia global.
+                    </div>
+                    <span class="compliance-item__field">DiagnosisCode_ICD10 → I10, E11, J45...</span>
+                </div>
+
+                <!-- 2. Completitud -->
+                <div class="compliance-item">
+                    <div class="compliance-item__header">
+                        <div class="compliance-item__check check--green">✓</div>
+                        <div class="compliance-item__title">2. Completitud (Completeness)</div>
+                    </div>
+                    <div class="compliance-item__desc">
+                        <strong>0 valores nulos</strong> en los 30 registros. Todas las variables obligatorias tienen datos. DischargeDate solo está vacío cuando el paciente sigue en tratamiento (ausencia justificada, no dato faltante).
+                    </div>
+                    <span class="compliance-item__field">DataQualityScore promedio → 0.956</span>
+                </div>
+
+                <!-- 3. Consistencia -->
+                <div class="compliance-item">
+                    <div class="compliance-item__header">
+                        <div class="compliance-item__check check--green">✓</div>
+                        <div class="compliance-item__title">3. Consistencia (Consistency)</div>
+                    </div>
+                    <div class="compliance-item__desc">
+                        La <strong>edad (Age) es coherente con la fecha de nacimiento (DateOfBirth)</strong>. Las fechas de alta son posteriores a las de admisión. Los estados de tratamiento son coherentes con las fechas.
+                    </div>
+                    <span class="compliance-item__field">Age = 2026 - Year(DateOfBirth)</span>
+                </div>
+
+                <!-- 4. Credibilidad -->
+                <div class="compliance-item">
+                    <div class="compliance-item__header">
+                        <div class="compliance-item__check check--green">✓</div>
+                        <div class="compliance-item__title">4. Credibilidad (Credibility)</div>
+                    </div>
+                    <div class="compliance-item__desc">
+                        Cada registro incluye <strong>RecordSource</strong> (sistema de origen) y <strong>AttendingPhysicianID</strong> (médico responsable), permitiendo verificar la procedencia y autoridad de cada dato clínico.
+                    </div>
+                    <span class="compliance-item__field">RecordSource → Sistema HIS v4.2</span>
+                </div>
+
+                <!-- 5. Actualidad -->
+                <div class="compliance-item">
+                    <div class="compliance-item__header">
+                        <div class="compliance-item__check check--green">✓</div>
+                        <div class="compliance-item__title">5. Actualidad (Currentness)</div>
+                    </div>
+                    <div class="compliance-item__desc">
+                        El campo <strong>LastUpdated</strong> registra cuándo fue la última modificación de cada registro. Los pacientes activos tienen fechas recientes (septiembre 2026), los dados de alta tienen fechas anteriores.
+                    </div>
+                    <span class="compliance-item__field">LastUpdated → 2026-09-13</span>
+                </div>
+
+                <!-- 6. Accesibilidad -->
+                <div class="compliance-item">
+                    <div class="compliance-item__header">
+                        <div class="compliance-item__check check--green">✓</div>
+                        <div class="compliance-item__title">6. Accesibilidad (Accessibility)</div>
+                    </div>
+                    <div class="compliance-item__desc">
+                        El dataset está en <strong>formato CSV estándar</strong>, universalmente legible por cualquier herramienta (Excel, Python, R, SQL). Los IDs estructurados (PAC-XXXX, MED-XXX) facilitan búsquedas y filtrados.
+                    </div>
+                    <span class="compliance-item__field">Formato: CSV UTF-8</span>
+                </div>
+
+                <!-- 7. Conformidad -->
+                <div class="compliance-item">
+                    <div class="compliance-item__header">
+                        <div class="compliance-item__check check--green">✓</div>
+                        <div class="compliance-item__title">7. Conformidad (Compliance)</div>
+                    </div>
+                    <div class="compliance-item__desc">
+                        Las fechas siguen el estándar <strong>ISO 8601 (YYYY-MM-DD)</strong>. Los diagnósticos usan el estándar <strong>ICD-10 de la OMS</strong>. Los IDs siguen un patrón consistente con prefijo + número secuencial.
+                    </div>
+                    <span class="compliance-item__field">Fechas: ISO 8601 · Diagnósticos: ICD-10</span>
+                </div>
+
+                <!-- 8. Confidencialidad -->
+                <div class="compliance-item">
+                    <div class="compliance-item__header">
+                        <div class="compliance-item__check check--green">✓</div>
+                        <div class="compliance-item__title">8. Confidencialidad (Confidentiality)</div>
+                    </div>
+                    <div class="compliance-item__desc">
+                        Los emails están <strong>enmascarados</strong> (m****a@correo.com) y los teléfonos están <strong>hasheados criptográficamente</strong> (irreversibles). Los médicos se identifican por ID, no por nombre.
+                    </div>
+                    <span class="compliance-item__field">Email → m****a@ · Phone → a3f1b2c8...</span>
+                </div>
+
+                <!-- 9. Trazabilidad -->
+                <div class="compliance-item">
+                    <div class="compliance-item__header">
+                        <div class="compliance-item__check check--green">✓</div>
+                        <div class="compliance-item__title">9. Trazabilidad (Traceability)</div>
+                    </div>
+                    <div class="compliance-item__desc">
+                        Cada registro tiene <strong>RecordSource</strong> (origen del dato), <strong>LastUpdated</strong> (última modificación) y <strong>DataQualityScore</strong> (puntaje de calidad), permitiendo rastrear la historia completa del dato.
+                    </div>
+                    <span class="compliance-item__field">RecordSource + LastUpdated + QualityScore</span>
+                </div>
+
+                <!-- 10. Comprensibilidad -->
+                <div class="compliance-item">
+                    <div class="compliance-item__header">
+                        <div class="compliance-item__check check--green">✓</div>
+                        <div class="compliance-item__title">10. Comprensibilidad (Understandability)</div>
+                    </div>
+                    <div class="compliance-item__desc">
+                        Los nombres de columnas son <strong>descriptivos en inglés estándar</strong> (PrimaryDiagnosis, TreatmentStatus). Cada diagnóstico incluye texto legible junto al código técnico ICD-10 para ser comprensible por diferentes perfiles.
+                    </div>
+                    <span class="compliance-item__field">PrimaryDiagnosis + DiagnosisCode_ICD10</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container"><div class="divider"></div></div>
+
+    <!-- ═══════════════════════════════════════
+         SECTION 4: ISO 27701 COMPLIANCE
+         ═══════════════════════════════════════ -->
+    <section class="section" id="iso27701">
+        <div class="container">
+            <div class="section__header">
+                <div class="section__number">04 — Normativa 2</div>
+                <h2 class="section__title">Cumplimiento ISO/IEC 27701</h2>
+                <p class="section__desc">Cómo el dataset implementa los controles de gestión de privacidad exigidos por la norma.</p>
+            </div>
+
+            <div class="card card--amber reveal">
+                <div class="card__header">
+                    <div class="card__icon">🔒</div>
+                    <div>
+                        <div class="card__tag">ISO/IEC 27701:2019</div>
+                        <div class="card__name">Gestión de Privacidad — 8 Controles Implementados</div>
+                    </div>
+                </div>
+                <div class="card__body">
+                    <p>La ISO/IEC 27701 define controles para gestionar datos personales (PII). A continuación se demuestra cómo <strong>8 controles clave</strong> se reflejan en la estructura del dataset:</p>
+                </div>
+            </div>
+
+            <div class="compliance-grid reveal">
+                <!-- 1. Consentimiento granular -->
+                <div class="compliance-item">
+                    <div class="compliance-item__header">
+                        <div class="compliance-item__check check--green">✓</div>
+                        <div class="compliance-item__title">1. Consentimiento Granular</div>
+                    </div>
+                    <div class="compliance-item__desc">
+                        Se registran <strong>3 niveles de consentimiento separados</strong>: procesamiento de datos médicos, uso para investigación, y comunicaciones de marketing. Cada paciente puede aceptar o rechazar cada uno independientemente.
+                    </div>
+                    <span class="compliance-item__field">ConsentDataProcessing · ConsentResearch · ConsentMarketing</span>
+                </div>
+
+                <!-- 2. Minimización de datos -->
+                <div class="compliance-item">
+                    <div class="compliance-item__header">
+                        <div class="compliance-item__check check--green">✓</div>
+                        <div class="compliance-item__title">2. Minimización de Datos</div>
+                    </div>
+                    <div class="compliance-item__desc">
+                        Solo se recopilan los datos <strong>estrictamente necesarios</strong> para el tratamiento médico. No se almacena dirección, número de seguridad social, religión, ni otros datos innecesarios para el propósito declarado.
+                    </div>
+                    <span class="compliance-item__field">24 columnas esenciales — sin datos excesivos</span>
+                </div>
+
+                <!-- 3. Limitación de propósito -->
+                <div class="compliance-item">
+                    <div class="compliance-item__header">
+                        <div class="compliance-item__check check--green">✓</div>
+                        <div class="compliance-item__title">3. Limitación de Propósito</div>
+                    </div>
+                    <div class="compliance-item__desc">
+                        El campo <strong>DataPurpose</strong> declara explícitamente el propósito del procesamiento ("Tratamiento Médico"). Los datos no pueden usarse para fines distintos al declarado sin nuevo consentimiento.
+                    </div>
+                    <span class="compliance-item__field">DataPurpose → "Tratamiento Médico"</span>
+                </div>
+
+                <!-- 4. Base legal documentada -->
+                <div class="compliance-item">
+                    <div class="compliance-item__header">
+                        <div class="compliance-item__check check--green">✓</div>
+                        <div class="compliance-item__title">4. Base Legal Documentada</div>
+                    </div>
+                    <div class="compliance-item__desc">
+                        Cada registro tiene un <strong>LegalBasis</strong> que justifica el procesamiento: "Consentimiento Explícito" para la mayoría, e "Interés Vital" para pacientes de emergencia que no pudieron consentir previamente.
+                    </div>
+                    <span class="compliance-item__field">LegalBasis → Consentimiento Explícito / Interés Vital</span>
+                </div>
+
+                <!-- 5. Pseudonimización -->
+                <div class="compliance-item">
+                    <div class="compliance-item__header">
+                        <div class="compliance-item__check check--green">✓</div>
+                        <div class="compliance-item__title">5. Pseudonimización de PII</div>
+                    </div>
+                    <div class="compliance-item__desc">
+                        Los datos de contacto están <strong>pseudonimizados</strong>: emails con enmascaramiento parcial (m****a@correo.com) y teléfonos con hash criptográfico unidireccional (a3f1b2c8d9e0). Se reduce el riesgo de reidentificación.
+                    </div>
+                    <span class="compliance-item__field">Email: enmascarado · Phone: hash SHA-256</span>
+                </div>
+
+                <!-- 6. Limitación de retención -->
+                <div class="compliance-item">
+                    <div class="compliance-item__header">
+                        <div class="compliance-item__check check--green">✓</div>
+                        <div class="compliance-item__title">6. Limitación de Retención</div>
+                    </div>
+                    <div class="compliance-item__desc">
+                        El campo <strong>DataRetentionYears</strong> define cuánto tiempo se conservarán los datos: <strong>10 años</strong> para pacientes activos (requisito legal médico) y <strong>5 años</strong> para pacientes dados de alta. Después, los datos deben eliminarse.
+                    </div>
+                    <span class="compliance-item__field">DataRetentionYears → 10 (activo) / 5 (alta)</span>
+                </div>
+
+                <!-- 7. Identificación del responsable -->
+                <div class="compliance-item">
+                    <div class="compliance-item__header">
+                        <div class="compliance-item__check check--green">✓</div>
+                        <div class="compliance-item__title">7. Identificación del Controlador</div>
+                    </div>
+                    <div class="compliance-item__desc">
+                        El dataset identifica quién es el <strong>responsable de cada tratamiento</strong> mediante AttendingPhysicianID, y el sistema de origen (RecordSource). Esto permite ejercer derechos del titular directamente con el responsable.
+                    </div>
+                    <span class="compliance-item__field">AttendingPhysicianID → MED-042, MED-018...</span>
+                </div>
+
+                <!-- 8. Protección de datos sensibles -->
+                <div class="compliance-item">
+                    <div class="compliance-item__header">
+                        <div class="compliance-item__check check--green">✓</div>
+                        <div class="compliance-item__title">8. Datos Sensibles de Salud</div>
+                    </div>
+                    <div class="compliance-item__desc">
+                        Los datos médicos son <strong>categoría especial de PII</strong> (datos sensibles). El dataset garantiza su protección con: pseudonimización de contactos, consentimiento explícito obligatorio, y propósito restringido exclusivamente a tratamiento médico.
+                    </div>
+                    <span class="compliance-item__field">Categoría: Datos de Salud (Art. 9 GDPR compatible)</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container"><div class="divider"></div></div>
+
+    <!-- ═══════════════════════════════════════
+         SECTION 5: DATASET PREVIEW
+         ═══════════════════════════════════════ -->
+    <section class="section" id="dataset">
+        <div class="container">
+            <div class="section__header">
+                <div class="section__number">05 — Datos</div>
+                <h2 class="section__title">Vista Previa del Dataset</h2>
+                <p class="section__desc">Primeros 10 registros del dataset sintético (desplazar horizontalmente para ver todas las columnas).</p>
+            </div>
+
+            <div class="table-wrap reveal">
+                <table class="data-table" id="preview-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Nacimiento</th>
+                            <th>Edad</th>
+                            <th>Sexo</th>
+                            <th>Email (pseudo)</th>
+                            <th>Tel. (hash)</th>
+                            <th>Sangre</th>
+                            <th>Diagnóstico</th>
+                            <th>ICD-10</th>
+                            <th>Estado</th>
+                            <th>Admisión</th>
+                            <th>Alta</th>
+                            <th>Médico</th>
+                            <th>Aseguradora</th>
+                            <th>Cons. Datos</th>
+                            <th>Cons. Invest.</th>
+                            <th>Cons. Mktg.</th>
+                            <th>Propósito</th>
+                            <th>Base Legal</th>
+                            <th>Retención</th>
+                            <th>Actualizado</th>
+                            <th>Origen</th>
+                            <th>Calidad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>PAC-0001</td><td>María García López</td><td>1985-03-14</td><td>41</td><td>F</td>
+                            <td>m****a@correo.com</td><td>a3f1b2c8</td><td>A+</td>
+                            <td>Hipertensión Arterial</td><td><span class="tag-inline tag--info">I10</span></td>
+                            <td>Tratamiento Activo</td><td>2025-06-10</td><td>—</td><td>MED-042</td>
+                            <td>Seguros Salud S.A.</td>
+                            <td><span class="tag-inline tag--yes">TRUE</span></td>
+                            <td><span class="tag-inline tag--yes">TRUE</span></td>
+                            <td><span class="tag-inline tag--no">FALSE</span></td>
+                            <td>Trat. Médico</td><td>Consentimiento</td><td>10 años</td>
+                            <td>2026-09-13</td><td>HIS v4.2</td><td>0.97</td>
+                        </tr>
+                        <tr>
+                            <td>PAC-0002</td><td>Carlos Rodríguez M.</td><td>1972-11-28</td><td>53</td><td>M</td>
+                            <td>c****s@mail.com</td><td>b4e2c7d1</td><td>O+</td>
+                            <td>Diabetes Mellitus T2</td><td><span class="tag-inline tag--info">E11</span></td>
+                            <td>Tratamiento Activo</td><td>2024-01-15</td><td>—</td><td>MED-018</td>
+                            <td>MediProtect Inc.</td>
+                            <td><span class="tag-inline tag--yes">TRUE</span></td>
+                            <td><span class="tag-inline tag--no">FALSE</span></td>
+                            <td><span class="tag-inline tag--no">FALSE</span></td>
+                            <td>Trat. Médico</td><td>Consentimiento</td><td>10 años</td>
+                            <td>2026-09-12</td><td>HIS v4.2</td><td>0.95</td>
+                        </tr>
+                        <tr>
+                            <td>PAC-0003</td><td>Ana Martínez Ruiz</td><td>1990-07-22</td><td>36</td><td>F</td>
+                            <td>a****a@email.com</td><td>c5f3d8e2</td><td>B+</td>
+                            <td>Asma Bronquial</td><td><span class="tag-inline tag--info">J45</span></td>
+                            <td>En Seguimiento</td><td>2025-09-01</td><td>—</td><td>MED-042</td>
+                            <td>Nacional de Salud</td>
+                            <td><span class="tag-inline tag--yes">TRUE</span></td>
+                            <td><span class="tag-inline tag--yes">TRUE</span></td>
+                            <td><span class="tag-inline tag--yes">TRUE</span></td>
+                            <td>Trat. Médico</td><td>Consentimiento</td><td>10 años</td>
+                            <td>2026-09-13</td><td>HIS v4.2</td><td>0.98</td>
+                        </tr>
+                        <tr>
+                            <td>PAC-0004</td><td>Roberto Fernández D.</td><td>1968-02-05</td><td>58</td><td>M</td>
+                            <td>r****o@correo.com</td><td>d6a4e9f3</td><td>AB-</td>
+                            <td>Insuficiencia Cardíaca</td><td><span class="tag-inline tag--info">I50</span></td>
+                            <td>Tratamiento Activo</td><td>2023-11-20</td><td>—</td><td>MED-007</td>
+                            <td>Seguros Salud S.A.</td>
+                            <td><span class="tag-inline tag--yes">TRUE</span></td>
+                            <td><span class="tag-inline tag--no">FALSE</span></td>
+                            <td><span class="tag-inline tag--no">FALSE</span></td>
+                            <td>Trat. Médico</td><td>Interés Vital</td><td>10 años</td>
+                            <td>2026-09-10</td><td>HIS v4.2</td><td>0.93</td>
+                        </tr>
+                        <tr>
+                            <td>PAC-0005</td><td>Laura Sánchez Pérez</td><td>1995-12-10</td><td>30</td><td>F</td>
+                            <td>l****a@mail.com</td><td>e7b5f0a4</td><td>O-</td>
+                            <td>Trastorno de Ansiedad</td><td><span class="tag-inline tag--info">F41</span></td>
+                            <td>En Seguimiento</td><td>2026-02-14</td><td>—</td><td>MED-031</td>
+                            <td>MediProtect Inc.</td>
+                            <td><span class="tag-inline tag--yes">TRUE</span></td>
+                            <td><span class="tag-inline tag--yes">TRUE</span></td>
+                            <td><span class="tag-inline tag--no">FALSE</span></td>
+                            <td>Trat. Médico</td><td>Consentimiento</td><td>10 años</td>
+                            <td>2026-09-13</td><td>HIS v4.2</td><td>0.96</td>
+                        </tr>
+                        <tr>
+                            <td>PAC-0008</td><td>Miguel Á. Ruiz C.</td><td>1955-08-30</td><td>71</td><td>M</td>
+                            <td>m****l@mail.com</td><td>b0e8c3d7</td><td>O+</td>
+                            <td>EPOC</td><td><span class="tag-inline tag--info">J44</span></td>
+                            <td>Hospitalizado</td><td>2026-08-28</td><td>—</td><td>MED-007</td>
+                            <td>Nacional de Salud</td>
+                            <td><span class="tag-inline tag--yes">TRUE</span></td>
+                            <td><span class="tag-inline tag--no">FALSE</span></td>
+                            <td><span class="tag-inline tag--no">FALSE</span></td>
+                            <td>Trat. Médico</td><td>Interés Vital</td><td>10 años</td>
+                            <td>2026-09-13</td><td>Emergencia</td><td>0.91</td>
+                        </tr>
+                        <tr>
+                            <td>PAC-0010</td><td>Francisco Morales G.</td><td>1975-06-12</td><td>51</td><td>M</td>
+                            <td>f****o@correo.com</td><td>d2a0e5f9</td><td>A+</td>
+                            <td>Lumbalgia Crónica</td><td><span class="tag-inline tag--info">M54</span></td>
+                            <td>Alta Médica</td><td>2025-04-10</td><td>2026-01-15</td><td>MED-018</td>
+                            <td>Seguros Salud S.A.</td>
+                            <td><span class="tag-inline tag--yes">TRUE</span></td>
+                            <td><span class="tag-inline tag--no">FALSE</span></td>
+                            <td><span class="tag-inline tag--no">FALSE</span></td>
+                            <td>Trat. Médico</td><td>Consentimiento</td><td>5 años</td>
+                            <td>2026-09-08</td><td>HIS v4.2</td><td>0.95</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card card--cyan reveal" style="margin-top: 28px;">
+                <div class="card__header">
+                    <div class="card__icon">📊</div>
+                    <div>
+                        <div class="card__tag">ESTADÍSTICAS DEL DATASET</div>
+                        <div class="card__name">Resumen Cuantitativo</div>
+                    </div>
+                </div>
+                <div class="card__body">
+                    <div class="compliance-grid">
+                        <div class="compliance-item">
+                            <div class="compliance-item__title" style="color:var(--accent-emerald); font-size:1.5rem; font-weight:800;">30</div>
+                            <div class="compliance-item__desc">Registros totales</div>
+                        </div>
+                        <div class="compliance-item">
+                            <div class="compliance-item__title" style="color:var(--accent-cyan); font-size:1.5rem; font-weight:800;">24</div>
+                            <div class="compliance-item__desc">Variables (columnas)</div>
+                        </div>
+                        <div class="compliance-item">
+                            <div class="compliance-item__title" style="color:var(--accent-blue); font-size:1.5rem; font-weight:800;">100%</div>
+                            <div class="compliance-item__desc">Completitud de datos</div>
+                        </div>
+                        <div class="compliance-item">
+                            <div class="compliance-item__title" style="color:var(--accent-purple); font-size:1.5rem; font-weight:800;">0.956</div>
+                            <div class="compliance-item__desc">Score promedio de calidad</div>
+                        </div>
+                        <div class="compliance-item">
+                            <div class="compliance-item__title" style="color:var(--accent-amber); font-size:1.5rem; font-weight:800;">15 / 15</div>
+                            <div class="compliance-item__desc">Hombres / Mujeres (equilibrado)</div>
+                        </div>
+                        <div class="compliance-item">
+                            <div class="compliance-item__title" style="color:var(--accent-rose); font-size:1.5rem; font-weight:800;">100%</div>
+                            <div class="compliance-item__desc">Registros con consentimiento base</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer__inner">
+            <span>Tarea 3 — Dataset Sintético bajo 2 Normativas</span>
+            <div class="footer__tool">
+                <span class="footer__dot"></span>
+                <span>Visualización de Datos — 2026</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>
