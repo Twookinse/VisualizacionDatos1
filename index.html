@@ -717,6 +717,262 @@
         }
 
         /* ══════════════════════════════════════════════
+           ENTORNO B & COMPARATIVE SECTION STYLES
+           ══════════════════════════════════════════════ */
+        .sheets-banner {
+            background: linear-gradient(135deg, rgba(15, 157, 88, 0.15) 0%, rgba(26, 32, 53, 0.9) 100%);
+            border: 1px solid rgba(15, 157, 88, 0.4);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            flex-wrap: wrap;
+            box-shadow: 0 10px 30px rgba(15, 157, 88, 0.1);
+        }
+
+        .sheets-banner__info {
+            flex: 1;
+            min-width: 280px;
+        }
+
+        .sheets-banner__badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: rgba(15, 157, 88, 0.2);
+            border: 1px solid rgba(15, 157, 88, 0.5);
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #34d399;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .sheets-banner__title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .sheets-banner__desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .sheets-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #0F9D58 0%, #0B8043 100%);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            transition: all var(--transition-smooth);
+            box-shadow: 0 4px 15px rgba(15, 157, 88, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .sheets-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(15, 157, 88, 0.6);
+            background: linear-gradient(135deg, #13b365 0%, #0d964f 100%);
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .result-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            transition: all var(--transition-smooth);
+        }
+
+        .result-card:hover {
+            border-color: var(--border-glow);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .result-card__tag {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+
+        .result-card__tag--green {
+            background: rgba(15, 157, 88, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(15, 157, 88, 0.3);
+        }
+
+        .result-card__tag--blue {
+            background: rgba(99, 128, 255, 0.15);
+            color: var(--accent-blue);
+            border: 1px solid rgba(99, 128, 255, 0.3);
+        }
+
+        .result-card__title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .result-card__formula {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: #38bdf8;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 32px;
+        }
+
+        @media (max-width: 900px) {
+            .comparison-grid { grid-template-columns: 1fr; }
+        }
+
+        .comp-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+        }
+
+        .comp-card--web {
+            border-top: 4px solid var(--accent-blue);
+        }
+
+        .comp-card--sheets {
+            border-top: 4px solid #0F9D58;
+        }
+
+        .comp-card__header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .comp-card__icon {
+            font-size: 1.8rem;
+        }
+
+        .comp-card__title {
+            font-size: 1.25rem;
+            font-weight: 800;
+        }
+
+        .comp-card__score {
+            margin-left: auto;
+            font-size: 1.2rem;
+            font-weight: 900;
+            padding: 6px 14px;
+            border-radius: 100px;
+        }
+
+        .comp-card--web .comp-card__score {
+            background: rgba(99, 128, 255, 0.15);
+            color: var(--accent-blue);
+        }
+
+        .comp-card--sheets .comp-card__score {
+            background: rgba(15, 157, 88, 0.15);
+            color: #34d399;
+        }
+
+        .comp-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .comp-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 0.92rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        .comp-list li strong {
+            color: var(--text-primary);
+        }
+
+        .comp-list__check {
+            color: #34d399;
+            font-weight: 800;
+            font-size: 1.1rem;
+        }
+
+        .comp-list__cross {
+            color: #fb7185;
+            font-weight: 800;
+            font-size: 1.1rem;
+        }
+
+        .winner-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .winner-badge--web {
+            background: rgba(99, 128, 255, 0.2);
+            color: var(--accent-blue);
+            border: 1px solid rgba(99, 128, 255, 0.4);
+        }
+
+        .winner-badge--sheets {
+            background: rgba(15, 157, 88, 0.2);
+            color: #34d399;
+            border: 1px solid rgba(15, 157, 88, 0.4);
+        }
+
+        .winner-badge--tie {
+            background: rgba(251, 191, 36, 0.2);
+            color: var(--accent-amber);
+            border: 1px solid rgba(251, 191, 36, 0.4);
+        }
+
+        /* ══════════════════════════════════════════════
            DIVIDER
            ══════════════════════════════════════════════ */
         .divider {
@@ -807,6 +1063,8 @@
                 <li><a href="#characteristics" class="nav__link">Características</a></li>
                 <li><a href="#questions" class="nav__link">Preguntas</a></li>
                 <li><a href="#charts" class="nav__link">Gráficos</a></li>
+                <li><a href="#entorno-b" class="nav__link" style="color: #34d399;">Entorno B (Sheets)</a></li>
+                <li><a href="#comparativa-ia" class="nav__link" style="color: #38bdf8;">Comparativa IA</a></li>
                 <li><a href="#conclusion" class="nav__link">Conclusión</a></li>
             </ul>
         </div>
@@ -815,16 +1073,16 @@
     <!-- Hero Section -->
     <header class="hero">
         <div class="container">
-            <div class="hero__badge">
+            <div class="hero__badge" style="display: inline-flex; gap: 10px; align-items: center;">
                 <span class="hero__badge-dot"></span>
-                Entorno A — HTML + JavaScript + Chart.js
+                <span>Tarea 1 — Comparativa de IA: Entorno A (Web) vs. Entorno B (Google Sheets)</span>
             </div>
             <h1 class="hero__title">
                 Análisis del Dataset<br>
                 <span class="hero__title-gradient">Titanic</span>
             </h1>
             <p class="hero__subtitle">
-                Exploración completa con características clave, preguntas analíticas, visualizaciones interactivas y conclusiones basadas en datos de 1,310 pasajeros.
+                Exploración comparativa integral generada por IA: Dashboard Web interactivo (Entorno A) y Hoja de Cálculo con IA integrada en Google Sheets (Entorno B).
             </p>
             <div class="hero__prompt">
                 <p>"A partir de este dataset Titanic.csv del proyecto, genera un análisis que incluya: (1) 5 características relevantes del dataset, (2) 3 preguntas analíticas relevantes con sus respuestas, (3) al menos 2 gráficos que respalden el análisis, (4) una conclusión breve interpretando los hallazgos."</p>
@@ -963,13 +1221,206 @@
     <div class="container"><div class="divider"></div></div>
 
     <!-- ═══════════════════════════════════════════════
-         SECTION 4: CONCLUSION
+         SECTION 4: ENTORNO B (GOOGLE SHEETS)
+         ═══════════════════════════════════════════════ -->
+    <section class="section" id="entorno-b">
+        <div class="container">
+            <div class="section__header reveal">
+                <div class="section__number">04 — Entorno B (Google Sheets)</div>
+                <h2 class="section__title">Análisis Asistido por IA en Google Sheets</h2>
+                <p class="section__desc">Ejecución del mismo prompt en el entorno corporativo de hoja de cálculo en la nube con Gemini integrado.</p>
+            </div>
+
+            <!-- Sheets Official Banner with Link -->
+            <div class="sheets-banner reveal">
+                <div class="sheets-banner__info">
+                    <div class="sheets-banner__badge">
+                        <span>📊 Google Workspace & Gemini</span>
+                    </div>
+                    <h3 class="sheets-banner__title">Hoja de Cálculo Oficial en Google Drive</h3>
+                    <p class="sheets-banner__desc">
+                        Dataset Titanic importado, procesado y analizado con la IA integrada de Google Sheets mediante fórmulas dinámicas, tablas resumen y gráficos automatizados.
+                    </p>
+                </div>
+                <div>
+                    <a href="https://docs.google.com/spreadsheets/d/13GDZa_SkD5hXX3hjqA1CgVEDPA685F3fGFXrB_IXJxU/edit?usp=sharing" target="_blank" rel="noopener noreferrer" class="sheets-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/></svg>
+                        Abrir Google Sheets Oficial ↗
+                    </a>
+                </div>
+            </div>
+
+            <!-- Results in Sheets Grid -->
+            <div class="results-grid">
+                <!-- Card 1: 5 Caracteristicas -->
+                <div class="result-card reveal">
+                    <span class="result-card__tag result-card__tag--green">1. Características en Sheets</span>
+                    <h4 class="result-card__title">Resumen Estructural del Dataset</h4>
+                    <ul class="comp-list">
+                        <li><span class="comp-list__check">✓</span> <strong>1,310 Filas & 27 Columnas:</strong> Reconocimiento de registros de pasajeros con tipos de datos heterogéneos.</li>
+                        <li><span class="comp-list__check">✓</span> <strong>Detección de Nulos:</strong> Identificación masiva de celdas vacías en <code>Cabin</code> (>77%) y <code>Age</code> (~20%).</li>
+                        <li><span class="comp-list__check">✓</span> <strong>Tasa Global de Supervivencia:</strong> Cálculo del 38.2% de sobrevivientes con fórmula <code>=COUNTIF()</code>.</li>
+                        <li><span class="comp-list__check">✓</span> <strong>Distribución por Género:</strong> 64.4% hombres y 35.6% mujeres.</li>
+                        <li><span class="comp-list__check">✓</span> <strong>Estratificación Social:</strong> Pasajeros repartidos en 3 clases tarifarias.</li>
+                    </ul>
+                </div>
+
+                <!-- Card 2: Formulas & Preguntas -->
+                <div class="result-card reveal">
+                    <span class="result-card__tag result-card__tag--green">2. Fórmulas Generadas por IA</span>
+                    <h4 class="result-card__title">Respuestas a Preguntas Analíticas</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">Supervivencia de Mujeres (72.7% vs 19.1%):</p>
+                    <div class="result-card__formula">=COUNTIFS(Titanic!E:E, 1, Titanic!B:B, 1) / COUNTIF(Titanic!E:E, 1)</div>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">Supervivencia 1ª Clase (61.9% vs 25.5% 3ª Clase):</p>
+                    <div class="result-card__formula">=COUNTIFS(Titanic!C:C, 1, Titanic!B:B, 1) / COUNTIF(Titanic!C:C, 1)</div>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">Tarifa Promedio 1ª Clase ($87.51):</p>
+                    <div class="result-card__formula">=AVERAGEIF(Titanic!C:C, 1, Titanic!J:J)</div>
+                </div>
+
+                <!-- Card 3: Graficos & Tablas Dinamicas -->
+                <div class="result-card reveal">
+                    <span class="result-card__tag result-card__tag--green">3. Visualizaciones & Tablas</span>
+                    <h4 class="result-card__title">Gráficos Nativos en Google Sheets</h4>
+                    <ul class="comp-list">
+                        <li><span class="comp-list__check">✓</span> <strong>Gráfico Circular (Pie Chart):</strong> Distribución total de Supervivencia (38.2% Sobrevivientes vs 61.8% Fallecidos).</li>
+                        <li><span class="comp-list__check">✓</span> <strong>Gráfico de Columnas Apiladas:</strong> Comparativa de Supervivientes vs Fallecidos segmentados por Clase (1ª, 2ª, 3ª).</li>
+                        <li><span class="comp-list__check">✓</span> <strong>Tabla Dinámica (Pivot Table):</strong> Matriz cruzada de Género × Clase con conteo de supervivientes y porcentaje de fila.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container"><div class="divider"></div></div>
+
+    <!-- ═══════════════════════════════════════════════
+         SECTION 5: COMPARATIVA DE DESEMPEÑO
+         ═══════════════════════════════════════════════ -->
+    <section class="section" id="comparativa-ia">
+        <div class="container">
+            <div class="section__header reveal">
+                <div class="section__number">05 — Comparativa de Desempeño</div>
+                <h2 class="section__title">Entorno A (Web HTML/JS) vs. Entorno B (Google Sheets)</h2>
+                <p class="section__desc">Evaluación rigurosa de las capacidades, velocidad, interactividad y precisión de ambas soluciones de IA.</p>
+            </div>
+
+            <!-- Radar Chart Card -->
+            <div class="chart-card chart-card--full reveal" style="margin-bottom: 32px;">
+                <div class="chart-card__header">
+                    <h3 class="chart-card__title">Matriz Radar de Evaluación Multidimensional (Escala 1 al 10)</h3>
+                    <span class="chart-card__badge">Radar Benchmark</span>
+                </div>
+                <div class="chart-card__canvas-wrap" style="max-height: 420px; display: flex; justify-content: center;">
+                    <canvas id="chart-radar-ia" style="max-width: 600px; max-height: 400px;"></canvas>
+                </div>
+            </div>
+
+            <!-- Detailed Comparison Table -->
+            <div class="reveal" style="margin-bottom: 32px;">
+                <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 16px;">Tabla Comparativa por Criterios de Desempeño</h3>
+                <div class="data-table-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Criterio Evaluado</th>
+                                <th>Entorno A: Web IA (HTML + JS + Chart.js)</th>
+                                <th>Entorno B: Google Sheets + IA (Gemini)</th>
+                                <th>Vencedor / Ventaja</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>1. Diseño y Calidad Visual (UI/UX)</strong></td>
+                                <td>Diseño dark-mode vanguardista, microanimaciones, glassmorphism y tipografía moderna Inter/JetBrains.</td>
+                                <td>Interfaz estándar de hoja de cálculo, gráficos nativos funcionales pero con estilo visual genérico.</td>
+                                <td><span class="winner-badge winner-badge--web">🏆 Entorno A (Web)</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>2. Interactividad y Dinamismo</strong></td>
+                                <td>Tooltips animados, transiciones fluidas al scroll, gráficos reactivos y filtros dinámicos en tiempo real.</td>
+                                <td>Filtros por celda y segmentadores estáticos; actualización reactiva al editar datos.</td>
+                                <td><span class="winner-badge winner-badge--web">🏆 Entorno A (Web)</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>3. Facilidad y Rapidez de Generación</strong></td>
+                                <td>Requiere generar código fuente completo (HTML, CSS, JS) y verificar compatibilidad y dependencias.</td>
+                                <td>Generación instantánea de fórmulas nativas directas (<code>=SUM</code>, <code>=COUNTIFS</code>) y tablas dinámicas con 1 clic.</td>
+                                <td><span class="winner-badge winner-badge--sheets">🏆 Entorno B (Sheets)</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>4. Edición de Datos en Vivo (CRUD)</strong></td>
+                                <td>Los datos están incrustados o se leen de CSV; la edición de celdas requiere reprogramar la lógica web.</td>
+                                <td>Edición directa de cualquier celda, recálculo automático instantáneo y colaboración multiusuario simultánea.</td>
+                                <td><span class="winner-badge winner-badge--sheets">🏆 Entorno B (Sheets)</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>5. Personalización y Escalabilidad Gráfica</strong></td>
+                                <td>Libertad total de personalización con Chart.js, paletas HSL a medida, canvas responsive y temas ilimitados.</td>
+                                <td>Limitado a los tipos de gráficos predeterminados y paletas estándar del motor de Google Charts.</td>
+                                <td><span class="winner-badge winner-badge--web">🏆 Entorno A (Web)</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>6. Accesibilidad para Usuarios No Técnicos</strong></td>
+                                <td>Fácil de consumir como reporte interactivo para directivos o público general en cualquier navegador.</td>
+                                <td>Familiar para analistas de negocio, sin requerir conocimientos de programación o frontend.</td>
+                                <td><span class="winner-badge winner-badge--tie">🤝 Empate Técnico</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Pros & Cons Comparison Cards -->
+            <div class="comparison-grid">
+                <!-- Entorno A Summary -->
+                <div class="comp-card comp-card--web reveal">
+                    <div class="comp-card__header">
+                        <div class="comp-card__icon">🌐</div>
+                        <div>
+                            <div class="comp-card__title">Entorno A: Aplicación Web</div>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">HTML5 + Vanilla CSS + JS + Chart.js</span>
+                        </div>
+                        <div class="comp-card__score">9.2 / 10</div>
+                    </div>
+                    <ul class="comp-list">
+                        <li><span class="comp-list__check">✓</span> <strong>Experiencia de Usuario Premium:</strong> Presentación ejecutiva inmersiva ideal para dashboards públicos o portafolios.</li>
+                        <li><span class="comp-list__check">✓</span> <strong>Control Gráfico Absoluto:</strong> Estilización pixel-perfect de cada elemento, escala, eje y tooltip.</li>
+                        <li><span class="comp-list__check">✓</span> <strong>Cálculo Cliente Instantáneo:</strong> Procesa miles de registros localmente sin depender de servidores o cuotas API.</li>
+                        <li><span class="comp-list__cross">✗</span> <strong>Mayor Complejidad de Mantenimiento:</strong> Requiere conocimientos de desarrollo web para modificar estructura.</li>
+                    </ul>
+                </div>
+
+                <!-- Entorno B Summary -->
+                <div class="comp-card comp-card--sheets reveal">
+                    <div class="comp-card__header">
+                        <div class="comp-card__icon">📊</div>
+                        <div>
+                            <div class="comp-card__title">Entorno B: Google Sheets</div>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">Cloud Spreadsheet + Gemini Workspace IA</span>
+                        </div>
+                        <div class="comp-card__score">8.5 / 10</div>
+                    </div>
+                    <ul class="comp-list">
+                        <li><span class="comp-list__check">✓</span> <strong>Productividad Inmediata:</strong> La IA crea fórmulas matemáticas y tablas dinámicas listas para auditar en segundos.</li>
+                        <li><span class="comp-list__check">✓</span> <strong>Colaboración en Tiempo Real:</strong> Múltiples analistas pueden ver, editar y comentar datos a la vez en la nube.</li>
+                        <li><span class="comp-list__check">✓</span> <strong>Flexibilidad Operativa:</strong> Permite agregar filas, cambiar valores y probar escenarios "what-if" al instante.</li>
+                        <li><span class="comp-list__cross">✗</span> <strong>Capacidad Visual Limitada:</strong> No permite crear interfaces a medida ni animaciones interactivas complejas.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container"><div class="divider"></div></div>
+
+    <!-- ═══════════════════════════════════════════════
+         SECTION 6: CONCLUSION
          ═══════════════════════════════════════════════ -->
     <section class="section" id="conclusion">
         <div class="container">
             <div class="section__header reveal">
-                <div class="section__number">04 — Conclusión</div>
-                <h2 class="section__title">Interpretación de Hallazgos</h2>
+                <div class="section__number">06 — Conclusiones Globales</div>
+                <h2 class="section__title">Interpretación de Hallazgos y Veredicto Final</h2>
             </div>
 
             <div class="conclusion reveal" id="conclusion-card">
@@ -1472,6 +1923,90 @@
                 }
             }
         });
+
+        // ── Chart 6: Radar Benchmark Comparison (Web vs Sheets) ──
+        const radarCanvas = document.getElementById('chart-radar-ia');
+        if (radarCanvas) {
+            new Chart(radarCanvas, {
+                type: 'radar',
+                data: {
+                    labels: [
+                        'Diseño & UI/UX',
+                        'Interactividad',
+                        'Velocidad Creación',
+                        'Edición en Vivo',
+                        'Personalización',
+                        'Accesibilidad Analítica'
+                    ],
+                    datasets: [
+                        {
+                            label: 'Entorno A: Web (HTML/JS/Chart.js)',
+                            data: [9.8, 9.5, 7.8, 6.0, 9.8, 7.5],
+                            fill: true,
+                            backgroundColor: 'rgba(99, 128, 255, 0.2)',
+                            borderColor: 'rgba(99, 128, 255, 1)',
+                            pointBackgroundColor: 'rgba(99, 128, 255, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(99, 128, 255, 1)',
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Entorno B: Google Sheets (Gemini)',
+                            data: [6.2, 6.0, 9.2, 9.8, 5.5, 9.5],
+                            fill: true,
+                            backgroundColor: 'rgba(15, 157, 88, 0.2)',
+                            borderColor: 'rgba(52, 211, 153, 1)',
+                            pointBackgroundColor: 'rgba(52, 211, 153, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(52, 211, 153, 1)',
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(99, 128, 255, 0.15)' },
+                            grid: { color: 'rgba(99, 128, 255, 0.1)' },
+                            pointLabels: {
+                                color: 'rgba(240, 246, 252, 0.85)',
+                                font: { size: 12, weight: '600' }
+                            },
+                            ticks: {
+                                backdropColor: 'transparent',
+                                color: 'rgba(148, 163, 184, 0.7)',
+                                stepSize: 2,
+                                min: 0,
+                                max: 10
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 10
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#f0f6fc',
+                                padding: 16,
+                                font: { size: 12, weight: '600' }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(17,24,39,0.95)',
+                            borderColor: 'rgba(99,128,255,0.3)',
+                            borderWidth: 1,
+                            padding: 10,
+                            cornerRadius: 8
+                        }
+                    }
+                }
+            });
+        }
 
         // ═══════════════════════════════════════
         // SCROLL REVEAL ANIMATION
