@@ -3,2031 +3,403 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <title>Análisis del Dataset Titanic | Visualización de Datos</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-    <style>
-        /* ══════════════════════════════════════════════
-           DESIGN SYSTEM - CSS Variables
-           ══════════════════════════════════════════════ */
-        :root {
-            --bg-primary: #0a0e1a;
-            --bg-secondary: #111827;
-            --bg-card: #1a2035;
-            --bg-card-hover: #1f2847;
-            --bg-glass: rgba(26, 32, 53, 0.7);
-            --border-subtle: rgba(99, 128, 255, 0.12);
-            --border-glow: rgba(99, 128, 255, 0.3);
-            --text-primary: #f0f2f8;
-            --text-secondary: #9ba3bf;
-            --text-muted: #5c6380;
-            --accent-blue: #6380ff;
-            --accent-cyan: #38bdf8;
-            --accent-purple: #a78bfa;
-            --accent-rose: #fb7185;
-            --accent-emerald: #34d399;
-            --accent-amber: #fbbf24;
-            --gradient-hero: linear-gradient(135deg, #6380ff 0%, #a78bfa 50%, #fb7185 100%);
-            --gradient-card: linear-gradient(145deg, rgba(99,128,255,0.08) 0%, rgba(167,139,250,0.04) 100%);
-            --gradient-glow: radial-gradient(ellipse at 50% 0%, rgba(99,128,255,0.15) 0%, transparent 60%);
-            --shadow-soft: 0 4px 24px rgba(0,0,0,0.3);
-            --shadow-glow: 0 0 40px rgba(99,128,255,0.12);
-            --radius-sm: 8px;
-            --radius-md: 14px;
-            --radius-lg: 20px;
-            --radius-xl: 28px;
-            --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-smooth: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* ══════════════════════════════════════════════
-           RESET & BASE
-           ══════════════════════════════════════════════ */
-        *, *::before, *::after {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-            font-size: 16px;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.7;
-            overflow-x: hidden;
-            min-height: 100vh;
-        }
-
-        /* ══════════════════════════════════════════════
-           BACKGROUND EFFECTS
-           ══════════════════════════════════════════════ */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--gradient-glow);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .bg-orb {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.08;
-            pointer-events: none;
-            z-index: 0;
-            animation: orbFloat 20s ease-in-out infinite;
-        }
-
-        .bg-orb--1 {
-            width: 600px;
-            height: 600px;
-            background: var(--accent-blue);
-            top: -200px;
-            right: -200px;
-        }
-
-        .bg-orb--2 {
-            width: 500px;
-            height: 500px;
-            background: var(--accent-purple);
-            bottom: -100px;
-            left: -150px;
-            animation-delay: -7s;
-        }
-
-        .bg-orb--3 {
-            width: 400px;
-            height: 400px;
-            background: var(--accent-rose);
-            top: 50%;
-            left: 50%;
-            animation-delay: -14s;
-        }
-
-        @keyframes orbFloat {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(30px, -20px) scale(1.05); }
-            66% { transform: translate(-20px, 15px) scale(0.95); }
-        }
-
-        /* ══════════════════════════════════════════════
-           LAYOUT
-           ══════════════════════════════════════════════ */
-        .container {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 0 24px;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* ══════════════════════════════════════════════
-           NAVIGATION
-           ══════════════════════════════════════════════ */
-        .nav {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            padding: 16px 0;
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            background: rgba(10, 14, 26, 0.8);
-            border-bottom: 1px solid var(--border-subtle);
-        }
-
-        .nav__inner {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .nav__brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-weight: 700;
-            font-size: 1.1rem;
-            text-decoration: none;
-            color: var(--text-primary);
-        }
-
-        .nav__icon {
-            width: 36px;
-            height: 36px;
-            background: var(--gradient-hero);
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-        }
-
-        .nav__links {
-            display: flex;
-            gap: 8px;
-            list-style: none;
-        }
-
-        .nav__link {
-            text-decoration: none;
-            color: var(--text-secondary);
-            padding: 8px 16px;
-            border-radius: var(--radius-sm);
-            font-size: 0.875rem;
-            font-weight: 500;
-            transition: all var(--transition-fast);
-        }
-
-        .nav__link:hover {
-            color: var(--text-primary);
-            background: rgba(99, 128, 255, 0.1);
-        }
-
-        /* ══════════════════════════════════════════════
-           HERO SECTION
-           ══════════════════════════════════════════════ */
-        .hero {
-            padding: 80px 0 60px;
-            text-align: center;
-        }
-
-        .hero__badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 16px 6px 8px;
-            background: rgba(99, 128, 255, 0.1);
-            border: 1px solid var(--border-subtle);
-            border-radius: 100px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            color: var(--accent-blue);
-            margin-bottom: 24px;
-            animation: fadeInUp 0.6s ease-out;
-        }
-
-        .hero__badge-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--accent-emerald);
-            border-radius: 50%;
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(0.8); }
-        }
-
-        .hero__title {
-            font-size: clamp(2.5rem, 5vw, 4rem);
-            font-weight: 900;
-            letter-spacing: -0.03em;
-            line-height: 1.1;
-            margin-bottom: 20px;
-            animation: fadeInUp 0.6s ease-out 0.1s both;
-        }
-
-        .hero__title-gradient {
-            background: var(--gradient-hero);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero__subtitle {
-            font-size: 1.15rem;
-            color: var(--text-secondary);
-            max-width: 640px;
-            margin: 0 auto 40px;
-            font-weight: 400;
-            animation: fadeInUp 0.6s ease-out 0.2s both;
-        }
-
-        .hero__prompt {
-            max-width: 800px;
-            margin: 0 auto;
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg);
-            padding: 24px 28px;
-            text-align: left;
-            position: relative;
-            animation: fadeInUp 0.6s ease-out 0.3s both;
-        }
-
-        .hero__prompt::before {
-            content: 'PROMPT UTILIZADO';
-            position: absolute;
-            top: -10px;
-            left: 24px;
-            background: var(--bg-card);
-            padding: 0 12px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            color: var(--accent-cyan);
-        }
-
-        .hero__prompt p {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            line-height: 1.8;
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 400;
-        }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ══════════════════════════════════════════════
-           SECTIONS
-           ══════════════════════════════════════════════ */
-        .section {
-            padding: 60px 0;
-        }
-
-        .section__header {
-            margin-bottom: 40px;
-        }
-
-        .section__number {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--accent-blue);
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-        }
-
-        .section__title {
-            font-size: 2rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            margin-bottom: 12px;
-        }
-
-        .section__desc {
-            font-size: 1rem;
-            color: var(--text-secondary);
-            max-width: 600px;
-        }
-
-        /* ══════════════════════════════════════════════
-           STAT CARDS (Characteristics)
-           ══════════════════════════════════════════════ */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-            gap: 20px;
-        }
-
-        .stat-card {
-            background: var(--gradient-card);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-md);
-            padding: 28px;
-            transition: all var(--transition-smooth);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            border-radius: var(--radius-md) var(--radius-md) 0 0;
-            opacity: 0;
-            transition: opacity var(--transition-fast);
-        }
-
-        .stat-card:hover {
-            border-color: var(--border-glow);
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-glow);
-        }
-
-        .stat-card:hover::before {
-            opacity: 1;
-        }
-
-        .stat-card:nth-child(1)::before { background: var(--accent-blue); }
-        .stat-card:nth-child(2)::before { background: var(--accent-cyan); }
-        .stat-card:nth-child(3)::before { background: var(--accent-purple); }
-        .stat-card:nth-child(4)::before { background: var(--accent-rose); }
-        .stat-card:nth-child(5)::before { background: var(--accent-emerald); }
-
-        .stat-card__icon {
-            width: 48px;
-            height: 48px;
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.4rem;
-            margin-bottom: 16px;
-        }
-
-        .stat-card:nth-child(1) .stat-card__icon { background: rgba(99,128,255,0.15); }
-        .stat-card:nth-child(2) .stat-card__icon { background: rgba(56,189,248,0.15); }
-        .stat-card:nth-child(3) .stat-card__icon { background: rgba(167,139,250,0.15); }
-        .stat-card:nth-child(4) .stat-card__icon { background: rgba(251,113,133,0.15); }
-        .stat-card:nth-child(5) .stat-card__icon { background: rgba(52,211,153,0.15); }
-
-        .stat-card__value {
-            font-size: 1.8rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            margin-bottom: 4px;
-        }
-
-        .stat-card:nth-child(1) .stat-card__value { color: var(--accent-blue); }
-        .stat-card:nth-child(2) .stat-card__value { color: var(--accent-cyan); }
-        .stat-card:nth-child(3) .stat-card__value { color: var(--accent-purple); }
-        .stat-card:nth-child(4) .stat-card__value { color: var(--accent-rose); }
-        .stat-card:nth-child(5) .stat-card__value { color: var(--accent-emerald); }
-
-        .stat-card__label {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 8px;
-        }
-
-        .stat-card__detail {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            line-height: 1.6;
-        }
-
-        /* ══════════════════════════════════════════════
-           QUESTIONS & ANSWERS
-           ══════════════════════════════════════════════ */
-        .qa-list {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-
-        .qa-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg);
-            padding: 32px;
-            transition: all var(--transition-smooth);
-        }
-
-        .qa-card:hover {
-            border-color: var(--border-glow);
-            box-shadow: var(--shadow-glow);
-        }
-
-        .qa-card__question {
-            display: flex;
-            align-items: flex-start;
-            gap: 16px;
-            margin-bottom: 20px;
-        }
-
-        .qa-card__q-icon {
-            flex-shrink: 0;
-            width: 36px;
-            height: 36px;
-            border-radius: var(--radius-sm);
-            background: var(--gradient-hero);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 0.9rem;
-            color: white;
-        }
-
-        .qa-card__q-text {
-            font-size: 1.1rem;
-            font-weight: 700;
-            line-height: 1.5;
-            padding-top: 4px;
-        }
-
-        .qa-card__answer {
-            padding-left: 52px;
-        }
-
-        .qa-card__answer p {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            line-height: 1.8;
-        }
-
-        .qa-card__highlight {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 14px;
-            background: rgba(99, 128, 255, 0.1);
-            border: 1px solid var(--border-subtle);
-            border-radius: 100px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--accent-blue);
-            margin-top: 12px;
-        }
-
-        /* ══════════════════════════════════════════════
-           CHARTS
-           ══════════════════════════════════════════════ */
-        .charts-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 24px;
-        }
-
-        .chart-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg);
-            padding: 28px;
-            transition: all var(--transition-smooth);
-        }
-
-        .chart-card:hover {
-            border-color: var(--border-glow);
-            box-shadow: var(--shadow-glow);
-        }
-
-        .chart-card--full {
-            grid-column: 1 / -1;
-        }
-
-        .chart-card__header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 24px;
-        }
-
-        .chart-card__title {
-            font-size: 1rem;
-            font-weight: 700;
-        }
-
-        .chart-card__badge {
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 4px 12px;
-            border-radius: 100px;
-            background: rgba(52, 211, 153, 0.1);
-            color: var(--accent-emerald);
-            border: 1px solid rgba(52, 211, 153, 0.2);
-        }
-
-        .chart-card__canvas-wrap {
-            position: relative;
-            width: 100%;
-            max-height: 380px;
-        }
-
-        .chart-card__canvas-wrap canvas {
-            width: 100% !important;
-            max-height: 380px;
-        }
-
-        /* ══════════════════════════════════════════════
-           CONCLUSION
-           ══════════════════════════════════════════════ */
-        .conclusion {
-            background: var(--gradient-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-xl);
-            padding: 48px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .conclusion::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: var(--gradient-hero);
-        }
-
-        .conclusion__icon {
-            width: 56px;
-            height: 56px;
-            border-radius: var(--radius-md);
-            background: rgba(99, 128, 255, 0.12);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.6rem;
-            margin-bottom: 20px;
-        }
-
-        .conclusion__title {
-            font-size: 1.5rem;
-            font-weight: 800;
-            margin-bottom: 16px;
-        }
-
-        .conclusion__text {
-            color: var(--text-secondary);
-            font-size: 1rem;
-            line-height: 1.9;
-            max-width: 800px;
-        }
-
-        .conclusion__text strong {
-            color: var(--text-primary);
-            font-weight: 600;
-        }
-
-        .conclusion__bullets {
-            list-style: none;
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .conclusion__bullets li {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-        }
-
-        .conclusion__bullets li::before {
-            content: '→';
-            color: var(--accent-blue);
-            font-weight: 700;
-            flex-shrink: 0;
-            margin-top: 1px;
-        }
-
-        /* ══════════════════════════════════════════════
-           FOOTER
-           ══════════════════════════════════════════════ */
-        .footer {
-            padding: 40px 0;
-            border-top: 1px solid var(--border-subtle);
-            margin-top: 40px;
-        }
-
-        .footer__inner {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        .footer__tool {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .footer__dot {
-            width: 6px;
-            height: 6px;
-            background: var(--accent-emerald);
-            border-radius: 50%;
-        }
-
-        /* ══════════════════════════════════════════════
-           DATA TABLE
-           ══════════════════════════════════════════════ */
-        .data-table-wrap {
-            overflow-x: auto;
-            border-radius: var(--radius-md);
-            border: 1px solid var(--border-subtle);
-            margin-top: 24px;
-        }
-
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.85rem;
-        }
-
-        .data-table th {
-            background: rgba(99, 128, 255, 0.08);
-            padding: 14px 18px;
-            text-align: left;
-            font-weight: 600;
-            color: var(--text-primary);
-            border-bottom: 1px solid var(--border-subtle);
-            white-space: nowrap;
-        }
-
-        .data-table td {
-            padding: 12px 18px;
-            border-bottom: 1px solid rgba(99, 128, 255, 0.06);
-            color: var(--text-secondary);
-        }
-
-        .data-table tr:hover td {
-            background: rgba(99, 128, 255, 0.04);
-        }
-
-        .data-table .tag {
-            display: inline-block;
-            padding: 2px 10px;
-            border-radius: 100px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .tag--numeric {
-            background: rgba(56, 189, 248, 0.1);
-            color: var(--accent-cyan);
-        }
-
-        .tag--categorical {
-            background: rgba(167, 139, 250, 0.1);
-            color: var(--accent-purple);
-        }
-
-        .tag--binary {
-            background: rgba(251, 113, 133, 0.1);
-            color: var(--accent-rose);
-        }
-
-        /* ══════════════════════════════════════════════
-           ENTORNO B & COMPARATIVE SECTION STYLES
-           ══════════════════════════════════════════════ */
-        .sheets-banner {
-            background: linear-gradient(135deg, rgba(15, 157, 88, 0.15) 0%, rgba(26, 32, 53, 0.9) 100%);
-            border: 1px solid rgba(15, 157, 88, 0.4);
-            border-radius: var(--radius-lg);
-            padding: 32px;
-            margin-bottom: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 24px;
-            flex-wrap: wrap;
-            box-shadow: 0 10px 30px rgba(15, 157, 88, 0.1);
-        }
-
-        .sheets-banner__info {
-            flex: 1;
-            min-width: 280px;
-        }
-
-        .sheets-banner__badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 14px;
-            background: rgba(15, 157, 88, 0.2);
-            border: 1px solid rgba(15, 157, 88, 0.5);
-            border-radius: 100px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: #34d399;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .sheets-banner__title {
-            font-size: 1.4rem;
-            font-weight: 800;
-            color: #ffffff;
-            margin-bottom: 8px;
-        }
-
-        .sheets-banner__desc {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            line-height: 1.6;
-        }
-
-        .sheets-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 14px 28px;
-            background: linear-gradient(135deg, #0F9D58 0%, #0B8043 100%);
-            color: #ffffff;
-            font-weight: 700;
-            font-size: 0.95rem;
-            border-radius: var(--radius-md);
-            text-decoration: none;
-            transition: all var(--transition-smooth);
-            box-shadow: 0 4px 15px rgba(15, 157, 88, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-        }
-
-        .sheets-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(15, 157, 88, 0.6);
-            background: linear-gradient(135deg, #13b365 0%, #0d964f 100%);
-        }
-
-        .results-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 24px;
-            margin-bottom: 32px;
-        }
-
-        .result-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg);
-            padding: 24px;
-            transition: all var(--transition-smooth);
-        }
-
-        .result-card:hover {
-            border-color: var(--border-glow);
-            box-shadow: var(--shadow-glow);
-        }
-
-        .result-card__tag {
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            padding: 4px 10px;
-            border-radius: 6px;
-            display: inline-block;
-            margin-bottom: 12px;
-        }
-
-        .result-card__tag--green {
-            background: rgba(15, 157, 88, 0.15);
-            color: #34d399;
-            border: 1px solid rgba(15, 157, 88, 0.3);
-        }
-
-        .result-card__tag--blue {
-            background: rgba(99, 128, 255, 0.15);
-            color: var(--accent-blue);
-            border: 1px solid rgba(99, 128, 255, 0.3);
-        }
-
-        .result-card__title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-bottom: 12px;
-            color: var(--text-primary);
-        }
-
-        .result-card__formula {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: var(--radius-sm);
-            padding: 10px 14px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-            color: #38bdf8;
-            margin: 10px 0;
-            overflow-x: auto;
-        }
-
-        .comparison-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            margin-top: 32px;
-        }
-
-        @media (max-width: 900px) {
-            .comparison-grid { grid-template-columns: 1fr; }
-        }
-
-        .comp-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg);
-            padding: 28px;
-        }
-
-        .comp-card--web {
-            border-top: 4px solid var(--accent-blue);
-        }
-
-        .comp-card--sheets {
-            border-top: 4px solid #0F9D58;
-        }
-
-        .comp-card__header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .comp-card__icon {
-            font-size: 1.8rem;
-        }
-
-        .comp-card__title {
-            font-size: 1.25rem;
-            font-weight: 800;
-        }
-
-        .comp-card__score {
-            margin-left: auto;
-            font-size: 1.2rem;
-            font-weight: 900;
-            padding: 6px 14px;
-            border-radius: 100px;
-        }
-
-        .comp-card--web .comp-card__score {
-            background: rgba(99, 128, 255, 0.15);
-            color: var(--accent-blue);
-        }
-
-        .comp-card--sheets .comp-card__score {
-            background: rgba(15, 157, 88, 0.15);
-            color: #34d399;
-        }
-
-        .comp-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .comp-list li {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            font-size: 0.92rem;
-            line-height: 1.6;
-            color: var(--text-secondary);
-        }
-
-        .comp-list li strong {
-            color: var(--text-primary);
-        }
-
-        .comp-list__check {
-            color: #34d399;
-            font-weight: 800;
-            font-size: 1.1rem;
-        }
-
-        .comp-list__cross {
-            color: #fb7185;
-            font-weight: 800;
-            font-size: 1.1rem;
-        }
-
-        .winner-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 700;
-        }
-
-        .winner-badge--web {
-            background: rgba(99, 128, 255, 0.2);
-            color: var(--accent-blue);
-            border: 1px solid rgba(99, 128, 255, 0.4);
-        }
-
-        .winner-badge--sheets {
-            background: rgba(15, 157, 88, 0.2);
-            color: #34d399;
-            border: 1px solid rgba(15, 157, 88, 0.4);
-        }
-
-        .winner-badge--tie {
-            background: rgba(251, 191, 36, 0.2);
-            color: var(--accent-amber);
-            border: 1px solid rgba(251, 191, 36, 0.4);
-        }
-
-        /* ══════════════════════════════════════════════
-           DIVIDER
-           ══════════════════════════════════════════════ */
-        .divider {
-            height: 1px;
-            background: linear-gradient(to right, transparent, var(--border-subtle), transparent);
-            margin: 20px 0;
-        }
-
-        /* ══════════════════════════════════════════════
-           RESPONSIVE
-           ══════════════════════════════════════════════ */
-        @media (max-width: 768px) {
-            .nav__links { display: none; }
-            .hero { padding: 50px 0 40px; }
-            .hero__prompt { padding: 20px; }
-            .charts-grid { grid-template-columns: 1fr; }
-            .stats-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
-            .conclusion { padding: 28px; }
-            .footer__inner { flex-direction: column; gap: 12px; text-align: center; }
-            .qa-card { padding: 24px; }
-            .qa-card__answer { padding-left: 0; }
-        }
-
-        /* ══════════════════════════════════════════════
-           LOADING ANIMATION
-           ══════════════════════════════════════════════ */
-        .loading-overlay {
-            position: fixed;
-            inset: 0;
-            background: var(--bg-primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
-        }
-
-        .loading-overlay.hidden {
-            opacity: 0;
-            visibility: hidden;
-        }
-
-        .loading-spinner {
-            width: 48px;
-            height: 48px;
-            border: 3px solid var(--border-subtle);
-            border-top-color: var(--accent-blue);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Scroll reveal animations */
-        .reveal {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .reveal.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    </style>
+    <meta name="description" content="Ejercicios de Interpolación de Lagrange aplicados a la temperatura de ebullición del agua en La Paz, Bolivia y problemas de Ciencia de Datos y Desarrollo de Software.">
+    <title>Interpolación de Lagrange — Ejercicios Aplicados</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- MathJax for LaTeX rendering -->
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+            svg: { fontCache: 'global' },
+            startup: { pageReady: () => MathJax.startup.defaultPageReady() }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Background Orbs -->
-    <div class="bg-orb bg-orb--1"></div>
-    <div class="bg-orb bg-orb--2"></div>
-    <div class="bg-orb bg-orb--3"></div>
-
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loading">
-        <div class="loading-spinner"></div>
+    <!-- Simple Login Screen -->
+    <div id="loginOverlay" class="login-overlay">
+        <div class="login-box">
+            <div class="login-header">
+                <div class="login-icon">🔒</div>
+                <h2>Iniciar Sesión</h2>
+                <p>Ingresa tus credenciales para acceder</p>
+            </div>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="login-input-group">
+                    <label for="loginUser">Usuario</label>
+                    <input type="text" id="loginUser" placeholder="Usuario" required autocomplete="username" autofocus>
+                </div>
+                <div class="login-input-group">
+                    <label for="loginPass">Contraseña</label>
+                    <input type="password" id="loginPass" placeholder="Contraseña" required autocomplete="current-password">
+                </div>
+                <div id="loginError" class="login-error-msg" style="display: none;">
+                    ⚠️ Usuario o contraseña incorrectos
+                </div>
+                <button type="submit" class="login-submit-btn">Ingresar</button>
+            </form>
+        </div>
     </div>
 
-    <!-- Navigation -->
-    <nav class="nav" id="nav">
-        <div class="container nav__inner">
-            <a href="#" class="nav__brand">
-                <div class="nav__icon">🚢</div>
-                Titanic Analytics
-            </a>
-            <ul class="nav__links">
-                <li><a href="#characteristics" class="nav__link">Características</a></li>
-                <li><a href="#questions" class="nav__link">Preguntas</a></li>
-                <li><a href="#charts" class="nav__link">Gráficos</a></li>
-                <li><a href="#entorno-b" class="nav__link" style="color: #34d399;">Entorno B (Sheets)</a></li>
-                <li><a href="#comparativa-ia" class="nav__link" style="color: #38bdf8;">Comparativa IA</a></li>
-                <li><a href="#conclusion" class="nav__link">Conclusión</a></li>
-            </ul>
-        </div>
-    </nav>
+    <!-- Logout button -->
+    <div class="logout-bar">
+        <button id="logoutBtn" class="logout-btn" onclick="handleLogout()" title="Cerrar sesión">🚪 Salir (logan)</button>
+    </div>
+
+    <!-- Animated background particles -->
+    <canvas id="particleCanvas"></canvas>
 
     <!-- Hero Section -->
-    <header class="hero">
-        <div class="container">
-            <div class="hero__badge" style="display: inline-flex; gap: 10px; align-items: center;">
-                <span class="hero__badge-dot"></span>
-                <span>Tarea 1 — Comparativa de IA: Entorno A (Web) vs. Entorno B (Google Sheets)</span>
+    <header class="hero" id="hero">
+        <div class="hero-content">
+            <div class="badge">Métodos Numéricos</div>
+            <h1>Interpolación de <span class="gradient-text">Lagrange</span></h1>
+            <p class="hero-subtitle">Resolución paso a paso de ejercicios aplicados con el método de interpolación polinómica de Lagrange</p>
+            <div class="hero-cards">
+                <a href="#ejercicio1" class="hero-card">
+                    <div class="hero-card-icon">🌡️</div>
+                    <div class="hero-card-title">Ejercicio 1</div>
+                    <div class="hero-card-desc">Ebullición del agua en La Paz</div>
+                </a>
+                <a href="#ejercicio2" class="hero-card">
+                    <div class="hero-card-icon">📊</div>
+                    <div class="hero-card-title">Ejercicio 2</div>
+                    <div class="hero-card-desc">Data Science & Software Dev</div>
+                </a>
             </div>
-            <h1 class="hero__title">
-                Análisis del Dataset<br>
-                <span class="hero__title-gradient">Titanic</span>
-            </h1>
-            <p class="hero__subtitle">
-                Exploración comparativa integral generada por IA: Dashboard Web interactivo (Entorno A) y Hoja de Cálculo con IA integrada en Google Sheets (Entorno B).
-            </p>
-            <div class="hero__prompt">
-                <p>"A partir de este dataset Titanic.csv del proyecto, genera un análisis que incluya: (1) 5 características relevantes del dataset, (2) 3 preguntas analíticas relevantes con sus respuestas, (3) al menos 2 gráficos que respalden el análisis, (4) una conclusión breve interpretando los hallazgos."</p>
-            </div>
+            <a href="#teoria" class="scroll-indicator">
+                <span>Explorar</span>
+                <div class="scroll-arrow">↓</div>
+            </a>
         </div>
     </header>
 
-    <!-- ═══════════════════════════════════════════════
-         SECTION 1: CHARACTERISTICS
-         ═══════════════════════════════════════════════ -->
-    <section class="section" id="characteristics">
+    <!-- Theory Section -->
+    <section id="teoria" class="section theory-section">
         <div class="container">
-            <div class="section__header reveal">
-                <div class="section__number">01 — Características</div>
-                <h2 class="section__title">Características del Dataset</h2>
-                <p class="section__desc">Cinco aspectos clave que definen la estructura y calidad de los datos del Titanic.</p>
+            <div class="section-header">
+                <div class="section-badge">Fundamento Teórico</div>
+                <h2>Método de Interpolación de <span class="gradient-text">Lagrange</span></h2>
+            </div>
+            <div class="theory-grid">
+                <div class="theory-card glass-card">
+                    <div class="theory-card-header">
+                        <span class="theory-icon">📐</span>
+                        <h3>Definición</h3>
+                    </div>
+                    <p>Dado un conjunto de \(n+1\) puntos \((x_0, y_0), (x_1, y_1), \dots, (x_n, y_n)\), el polinomio de interpolación de Lagrange construye un polinomio de grado \(n\) que pasa exactamente por todos los puntos.</p>
+                </div>
+                <div class="theory-card glass-card">
+                    <div class="theory-card-header">
+                        <span class="theory-icon">🧮</span>
+                        <h3>Fórmula General</h3>
+                    </div>
+                    <div class="formula-box">
+                        \[P(x) = \sum_{i=0}^{n} y_i \cdot L_i(x)\]
+                    </div>
+                </div>
+                <div class="theory-card glass-card">
+                    <div class="theory-card-header">
+                        <span class="theory-icon">📏</span>
+                        <h3>Polinomios Base</h3>
+                    </div>
+                    <div class="formula-box">
+                        \[L_i(x) = \prod_{\substack{0 \le j \le n \\ j \neq i}} \frac{x - x_j}{x_i - x_j}\]
+                    </div>
+                </div>
+                <div class="theory-card glass-card">
+                    <div class="theory-card-header">
+                        <span class="theory-icon">✅</span>
+                        <h3>Propiedad Clave</h3>
+                    </div>
+                    <p>Cada \(L_i(x)\) cumple que \(L_i(x_i) = 1\) y \(L_i(x_j) = 0\) para \(j \neq i\). Esto garantiza que el polinomio toma exactamente el valor \(y_i\) en cada punto \(x_i\).</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Exercise 1: Boiling Point of Water -->
+    <section id="ejercicio1" class="section exercise-section">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge exercise-badge">Ejercicio 1</div>
+                <h2>Temperatura de Ebullición del Agua en <span class="gradient-text-warm">La Paz, Bolivia</span></h2>
+                <p class="section-subtitle">¿A qué temperatura hierve el agua en El Alto, el Centro y la Zona Sur?</p>
             </div>
 
-            <div class="stats-grid" id="stats-grid">
-                <!-- Filled by JS -->
+            <!-- Context Card -->
+            <div class="context-card glass-card">
+                <div class="context-header">
+                    <span class="context-icon">🏔️</span>
+                    <h3>Contexto del Problema</h3>
+                </div>
+                <p>La ciudad de La Paz, Bolivia, presenta una geografía única con grandes variaciones de altitud. El punto de ebullición del agua disminuye conforme aumenta la altitud, ya que la presión atmosférica es menor. Usando datos de referencia (tabla del problema 21), aplicaremos la <strong>Interpolación de Lagrange</strong> para estimar la temperatura de ebullición en tres zonas de La Paz. Las altitudes se convierten a pies (ft) para coincidir con la tabla de datos.</p>
+                <div class="zones-grid">
+                    <div class="zone-card zone-alto">
+                        <div class="zone-emoji">🏔️</div>
+                        <h4>El Alto</h4>
+                        <div class="zone-alt">4,050 m.s.n.m.</div>
+                        <div class="zone-desc">≈ 13,287 ft · Meseta altiplánica</div>
+                    </div>
+                    <div class="zone-card zone-centro">
+                        <div class="zone-emoji">🏛️</div>
+                        <h4>Centro</h4>
+                        <div class="zone-alt">3,640 m.s.n.m.</div>
+                        <div class="zone-desc">≈ 11,942 ft · Plaza Murillo</div>
+                    </div>
+                    <div class="zone-card zone-sur">
+                        <div class="zone-emoji">🌿</div>
+                        <h4>Zona Sur</h4>
+                        <div class="zone-alt">3,020 m.s.n.m.</div>
+                        <div class="zone-desc">≈ 9,908 ft · Valle bajo de La Paz</div>
+                    </div>
+                </div>
             </div>
 
-            <div class="reveal" style="margin-top: 32px;">
-                <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;">Detalle de Variables Relevantes</h3>
-                <div class="data-table-wrap">
-                    <table class="data-table" id="variables-table">
+            <!-- Data Table -->
+            <div class="data-card glass-card">
+                <div class="context-header">
+                    <span class="context-icon">📋</span>
+                    <h3>Datos Conocidos (Puntos de Interpolación)</h3>
+                </div>
+                <p>Usamos 7 puntos conocidos de altitud (en pies) vs. temperatura de ebullición (en °F), extraídos de la tabla de referencia del problema 21:</p>
+                <div class="table-wrapper">
+                    <table class="data-table" id="dataTable1">
                         <thead>
                             <tr>
-                                <th>Variable</th>
-                                <th>Tipo</th>
-                                <th>Descripción</th>
-                                <th>Valores Únicos</th>
-                                <th>Ejemplo</th>
-                            </tr>
-                        </thead>
-                        <tbody id="variables-tbody">
-                            <!-- Filled by JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <div class="container"><div class="divider"></div></div>
-
-    <!-- ═══════════════════════════════════════════════
-         SECTION 2: ANALYTICAL QUESTIONS
-         ═══════════════════════════════════════════════ -->
-    <section class="section" id="questions">
-        <div class="container">
-            <div class="section__header reveal">
-                <div class="section__number">02 — Preguntas Analíticas</div>
-                <h2 class="section__title">Preguntas y Respuestas</h2>
-                <p class="section__desc">Tres preguntas clave respondidas con los datos procesados del dataset.</p>
-            </div>
-
-            <div class="qa-list" id="qa-list">
-                <!-- Filled by JS -->
-            </div>
-        </div>
-    </section>
-
-    <div class="container"><div class="divider"></div></div>
-
-    <!-- ═══════════════════════════════════════════════
-         SECTION 3: CHARTS
-         ═══════════════════════════════════════════════ -->
-    <section class="section" id="charts">
-        <div class="container">
-            <div class="section__header reveal">
-                <div class="section__number">03 — Visualizaciones</div>
-                <h2 class="section__title">Gráficos Interactivos</h2>
-                <p class="section__desc">Visualizaciones que respaldan y enriquecen el análisis realizado.</p>
-            </div>
-
-            <div class="charts-grid">
-                <!-- Chart 1: Survival by Sex -->
-                <div class="chart-card reveal">
-                    <div class="chart-card__header">
-                        <h3 class="chart-card__title">Supervivencia por Sexo</h3>
-                        <span class="chart-card__badge">Gráfico de Barras</span>
-                    </div>
-                    <div class="chart-card__canvas-wrap">
-                        <canvas id="chart-survival-sex"></canvas>
-                    </div>
-                </div>
-
-                <!-- Chart 2: Survival by Class -->
-                <div class="chart-card reveal">
-                    <div class="chart-card__header">
-                        <h3 class="chart-card__title">Supervivencia por Clase</h3>
-                        <span class="chart-card__badge">Gráfico de Barras</span>
-                    </div>
-                    <div class="chart-card__canvas-wrap">
-                        <canvas id="chart-survival-class"></canvas>
-                    </div>
-                </div>
-
-                <!-- Chart 3: Age Distribution -->
-                <div class="chart-card chart-card--full reveal">
-                    <div class="chart-card__header">
-                        <h3 class="chart-card__title">Distribución de Edades</h3>
-                        <span class="chart-card__badge">Histograma</span>
-                    </div>
-                    <div class="chart-card__canvas-wrap">
-                        <canvas id="chart-age-dist"></canvas>
-                    </div>
-                </div>
-
-                <!-- Chart 4: Embarked Distribution -->
-                <div class="chart-card reveal">
-                    <div class="chart-card__header">
-                        <h3 class="chart-card__title">Puerto de Embarque</h3>
-                        <span class="chart-card__badge">Gráfico Doughnut</span>
-                    </div>
-                    <div class="chart-card__canvas-wrap">
-                        <canvas id="chart-embarked"></canvas>
-                    </div>
-                </div>
-
-                <!-- Chart 5: Fare by Class -->
-                <div class="chart-card reveal">
-                    <div class="chart-card__header">
-                        <h3 class="chart-card__title">Tarifa Promedio por Clase</h3>
-                        <span class="chart-card__badge">Gráfico de Barras</span>
-                    </div>
-                    <div class="chart-card__canvas-wrap">
-                        <canvas id="chart-fare-class"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <div class="container"><div class="divider"></div></div>
-
-    <!-- ═══════════════════════════════════════════════
-         SECTION 4: ENTORNO B (GOOGLE SHEETS)
-         ═══════════════════════════════════════════════ -->
-    <section class="section" id="entorno-b">
-        <div class="container">
-            <div class="section__header reveal">
-                <div class="section__number">04 — Entorno B (Google Sheets)</div>
-                <h2 class="section__title">Análisis Asistido por IA en Google Sheets</h2>
-                <p class="section__desc">Ejecución del mismo prompt en el entorno corporativo de hoja de cálculo en la nube con Gemini integrado.</p>
-            </div>
-
-            <!-- Sheets Official Banner with Link -->
-            <div class="sheets-banner reveal">
-                <div class="sheets-banner__info">
-                    <div class="sheets-banner__badge">
-                        <span>📊 Google Workspace & Gemini</span>
-                    </div>
-                    <h3 class="sheets-banner__title">Hoja de Cálculo Oficial en Google Drive</h3>
-                    <p class="sheets-banner__desc">
-                        Dataset Titanic importado, procesado y analizado con la IA integrada de Google Sheets mediante fórmulas dinámicas, tablas resumen y gráficos automatizados.
-                    </p>
-                </div>
-                <div>
-                    <a href="https://docs.google.com/spreadsheets/d/13GDZa_SkD5hXX3hjqA1CgVEDPA685F3fGFXrB_IXJxU/edit?usp=sharing" target="_blank" rel="noopener noreferrer" class="sheets-btn">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/></svg>
-                        Abrir Google Sheets Oficial ↗
-                    </a>
-                </div>
-            </div>
-
-            <!-- Results in Sheets Grid -->
-            <div class="results-grid">
-                <!-- Card 1: 5 Caracteristicas -->
-                <div class="result-card reveal">
-                    <span class="result-card__tag result-card__tag--green">1. Características en Sheets</span>
-                    <h4 class="result-card__title">Resumen Estructural del Dataset</h4>
-                    <ul class="comp-list">
-                        <li><span class="comp-list__check">✓</span> <strong>1,310 Filas & 27 Columnas:</strong> Reconocimiento de registros de pasajeros con tipos de datos heterogéneos.</li>
-                        <li><span class="comp-list__check">✓</span> <strong>Detección de Nulos:</strong> Identificación masiva de celdas vacías en <code>Cabin</code> (>77%) y <code>Age</code> (~20%).</li>
-                        <li><span class="comp-list__check">✓</span> <strong>Tasa Global de Supervivencia:</strong> Cálculo del 38.2% de sobrevivientes con fórmula <code>=COUNTIF()</code>.</li>
-                        <li><span class="comp-list__check">✓</span> <strong>Distribución por Género:</strong> 64.4% hombres y 35.6% mujeres.</li>
-                        <li><span class="comp-list__check">✓</span> <strong>Estratificación Social:</strong> Pasajeros repartidos en 3 clases tarifarias.</li>
-                    </ul>
-                </div>
-
-                <!-- Card 2: Formulas & Preguntas -->
-                <div class="result-card reveal">
-                    <span class="result-card__tag result-card__tag--green">2. Fórmulas Generadas por IA</span>
-                    <h4 class="result-card__title">Respuestas a Preguntas Analíticas</h4>
-                    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">Supervivencia de Mujeres (72.7% vs 19.1%):</p>
-                    <div class="result-card__formula">=COUNTIFS(Titanic!E:E, 1, Titanic!B:B, 1) / COUNTIF(Titanic!E:E, 1)</div>
-                    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">Supervivencia 1ª Clase (61.9% vs 25.5% 3ª Clase):</p>
-                    <div class="result-card__formula">=COUNTIFS(Titanic!C:C, 1, Titanic!B:B, 1) / COUNTIF(Titanic!C:C, 1)</div>
-                    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">Tarifa Promedio 1ª Clase ($87.51):</p>
-                    <div class="result-card__formula">=AVERAGEIF(Titanic!C:C, 1, Titanic!J:J)</div>
-                </div>
-
-                <!-- Card 3: Graficos & Tablas Dinamicas -->
-                <div class="result-card reveal">
-                    <span class="result-card__tag result-card__tag--green">3. Visualizaciones & Tablas</span>
-                    <h4 class="result-card__title">Gráficos Nativos en Google Sheets</h4>
-                    <ul class="comp-list">
-                        <li><span class="comp-list__check">✓</span> <strong>Gráfico Circular (Pie Chart):</strong> Distribución total de Supervivencia (38.2% Sobrevivientes vs 61.8% Fallecidos).</li>
-                        <li><span class="comp-list__check">✓</span> <strong>Gráfico de Columnas Apiladas:</strong> Comparativa de Supervivientes vs Fallecidos segmentados por Clase (1ª, 2ª, 3ª).</li>
-                        <li><span class="comp-list__check">✓</span> <strong>Tabla Dinámica (Pivot Table):</strong> Matriz cruzada de Género × Clase con conteo de supervivientes y porcentaje de fila.</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <div class="container"><div class="divider"></div></div>
-
-    <!-- ═══════════════════════════════════════════════
-         SECTION 5: COMPARATIVA DE DESEMPEÑO
-         ═══════════════════════════════════════════════ -->
-    <section class="section" id="comparativa-ia">
-        <div class="container">
-            <div class="section__header reveal">
-                <div class="section__number">05 — Comparativa de Desempeño</div>
-                <h2 class="section__title">Entorno A (Web HTML/JS) vs. Entorno B (Google Sheets)</h2>
-                <p class="section__desc">Evaluación rigurosa de las capacidades, velocidad, interactividad y precisión de ambas soluciones de IA.</p>
-            </div>
-
-            <!-- Radar Chart Card -->
-            <div class="chart-card chart-card--full reveal" style="margin-bottom: 32px;">
-                <div class="chart-card__header">
-                    <h3 class="chart-card__title">Matriz Radar de Evaluación Multidimensional (Escala 1 al 10)</h3>
-                    <span class="chart-card__badge">Radar Benchmark</span>
-                </div>
-                <div class="chart-card__canvas-wrap" style="max-height: 420px; display: flex; justify-content: center;">
-                    <canvas id="chart-radar-ia" style="max-width: 600px; max-height: 400px;"></canvas>
-                </div>
-            </div>
-
-            <!-- Detailed Comparison Table -->
-            <div class="reveal" style="margin-bottom: 32px;">
-                <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 16px;">Tabla Comparativa por Criterios de Desempeño</h3>
-                <div class="data-table-wrap">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Criterio Evaluado</th>
-                                <th>Entorno A: Web IA (HTML + JS + Chart.js)</th>
-                                <th>Entorno B: Google Sheets + IA (Gemini)</th>
-                                <th>Vencedor / Ventaja</th>
+                                <th>Punto</th>
+                                <th>Altitud \(x_i\) (ft)</th>
+                                <th>Temp. Ebullición \(y_i\) (°F)</th>
                             </tr>
                         </thead>
                         <tbody>
+                            <tr><td>\(i = 0\)</td><td>-1,000</td><td>213.9</td></tr>
+                            <tr><td>\(i = 1\)</td><td>0</td><td>212.0</td></tr>
+                            <tr><td>\(i = 2\)</td><td>3,000</td><td>206.2</td></tr>
+                            <tr><td>\(i = 3\)</td><td>8,000</td><td>196.2</td></tr>
+                            <tr><td>\(i = 4\)</td><td>15,000</td><td>184.4</td></tr>
+                            <tr><td>\(i = 5\)</td><td>22,000</td><td>172.6</td></tr>
+                            <tr><td>\(i = 6\)</td><td>28,000</td><td>163.1</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 10px;">Conversión: 1 metro = 3.28084 pies &nbsp;|&nbsp; °C = (°F − 32) × 5/9</p>
+            </div>
+
+            <!-- Interactive Calculator -->
+            <div class="calculator-card glass-card">
+                <div class="context-header">
+                    <span class="context-icon">🔢</span>
+                    <h3>Calculadora Interactiva</h3>
+                </div>
+                <p>Ingresa una altitud en metros para calcular la temperatura de ebullición (se convierte automáticamente a ft para interpolar):</p>
+                <div class="calc-input-group">
+                    <label for="altInput">Altitud (m.s.n.m.):</label>
+                    <input type="number" id="altInput" value="3640" min="0" max="8500" step="10">
+                    <button id="calcBtn1" class="btn-primary" onclick="calculateBoiling()">Calcular</button>
+                </div>
+                <div id="calcResult1" class="calc-result" style="display:none;"></div>
+            </div>
+
+            <!-- Step-by-step Solutions -->
+            <div class="solutions-container">
+                <!-- El Alto -->
+                <div class="solution-card glass-card" id="sol-alto">
+                    <div class="solution-header" onclick="toggleSolution('alto')" style="cursor:pointer;">
+                        <div class="solution-zone zone-alto-header">
+                            <span>🏔️</span> El Alto — 4,050 m (13,287 ft)
+                        </div>
+                        <button class="toggle-btn" type="button">
+                            <span class="toggle-icon" id="toggle-alto">▶</span> Ver Solución
+                        </button>
+                    </div>
+                    <div class="solution-body" id="body-alto" style="display:none;">
+                        <div class="step" id="step-alto-content">
+                            <!-- Content injected by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Centro -->
+                <div class="solution-card glass-card" id="sol-centro">
+                    <div class="solution-header" onclick="toggleSolution('centro')" style="cursor:pointer;">
+                        <div class="solution-zone zone-centro-header">
+                            <span>🏛️</span> Centro (Plaza Murillo) — 3,640 m (11,942 ft)
+                        </div>
+                        <button class="toggle-btn" type="button">
+                            <span class="toggle-icon" id="toggle-centro">▶</span> Ver Solución
+                        </button>
+                    </div>
+                    <div class="solution-body" id="body-centro" style="display:none;">
+                        <div class="step" id="step-centro-content">
+                            <!-- Content injected by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zona Sur -->
+                <div class="solution-card glass-card" id="sol-sur">
+                    <div class="solution-header" onclick="toggleSolution('sur')" style="cursor:pointer;">
+                        <div class="solution-zone zone-sur-header">
+                            <span>🌿</span> Zona Sur — 3,020 m (9,908 ft)
+                        </div>
+                        <button class="toggle-btn" type="button">
+                            <span class="toggle-icon" id="toggle-sur">▶</span> Ver Solución
+                        </button>
+                    </div>
+                    <div class="solution-body" id="body-sur" style="display:none;">
+                        <div class="step" id="step-sur-content">
+                            <!-- Content injected by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Summary -->
+            <div class="results-summary glass-card">
+                <div class="context-header">
+                    <span class="context-icon">📊</span>
+                    <h3>Resumen de Resultados — Ejercicio 1</h3>
+                </div>
+                <div class="results-grid" id="resultsGrid1">
+                    <!-- Filled by JS -->
+                </div>
+                <canvas id="chartCanvas1" class="chart-canvas"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- Exercise 2: Data Science + Software Dev -->
+    <section id="ejercicio2" class="section exercise-section exercise2-section">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge exercise2-badge">Ejercicio 2</div>
+                <h2>Ciencia de Datos <span class="gradient-text-cool">&</span> Desarrollo de Software</h2>
+                <p class="section-subtitle">Interpolación aplicada a la predicción del rendimiento de un pipeline de ML en producción</p>
+            </div>
+
+            <!-- Problem Statement -->
+            <div class="context-card glass-card problem-card-2">
+                <div class="context-header">
+                    <span class="context-icon">💡</span>
+                    <h3>Planteamiento del Problema</h3>
+                </div>
+                <div class="problem-statement">
+                    <p>Un equipo de <strong>ingeniería de software</strong> y <strong>ciencia de datos</strong> está desarrollando un sistema de <strong>machine learning en producción (MLOps)</strong>. El sistema procesa datos en tiempo real y genera predicciones. El equipo ha medido el <strong>throughput</strong> (solicitudes procesadas por segundo) del pipeline de ML según la cantidad de <strong>features (características)</strong> que el modelo procesa por cada solicitud.</p>
+                    
+                    <p>A medida que se agregan más features al modelo, aumenta la complejidad computacional, lo que reduce el throughput. El equipo necesita estimar el throughput cuando el modelo usa <strong>35 features</strong> y <strong>55 features</strong> para planificar la infraestructura de servidores.</p>
+
+                    <div class="problem-highlight">
+                        <strong>Pregunta:</strong> ¿Cuál será el throughput del pipeline de ML cuando el modelo procese 35 y 55 features, usando interpolación de Lagrange?
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Table Exercise 2 -->
+            <div class="data-card glass-card">
+                <div class="context-header">
+                    <span class="context-icon">📋</span>
+                    <h3>Datos Medidos en Producción</h3>
+                </div>
+                <p>Mediciones realizadas del throughput según el número de features:</p>
+                <div class="table-wrapper">
+                    <table class="data-table data-table-2" id="dataTable2">
+                        <thead>
                             <tr>
-                                <td><strong>1. Diseño y Calidad Visual (UI/UX)</strong></td>
-                                <td>Diseño dark-mode vanguardista, microanimaciones, glassmorphism y tipografía moderna Inter/JetBrains.</td>
-                                <td>Interfaz estándar de hoja de cálculo, gráficos nativos funcionales pero con estilo visual genérico.</td>
-                                <td><span class="winner-badge winner-badge--web">🏆 Entorno A (Web)</span></td>
+                                <th>Punto</th>
+                                <th>Nº Features \(x_i\)</th>
+                                <th>Throughput \(y_i\) (req/s)</th>
                             </tr>
-                            <tr>
-                                <td><strong>2. Interactividad y Dinamismo</strong></td>
-                                <td>Tooltips animados, transiciones fluidas al scroll, gráficos reactivos y filtros dinámicos en tiempo real.</td>
-                                <td>Filtros por celda y segmentadores estáticos; actualización reactiva al editar datos.</td>
-                                <td><span class="winner-badge winner-badge--web">🏆 Entorno A (Web)</span></td>
-                            </tr>
-                            <tr>
-                                <td><strong>3. Facilidad y Rapidez de Generación</strong></td>
-                                <td>Requiere generar código fuente completo (HTML, CSS, JS) y verificar compatibilidad y dependencias.</td>
-                                <td>Generación instantánea de fórmulas nativas directas (<code>=SUM</code>, <code>=COUNTIFS</code>) y tablas dinámicas con 1 clic.</td>
-                                <td><span class="winner-badge winner-badge--sheets">🏆 Entorno B (Sheets)</span></td>
-                            </tr>
-                            <tr>
-                                <td><strong>4. Edición de Datos en Vivo (CRUD)</strong></td>
-                                <td>Los datos están incrustados o se leen de CSV; la edición de celdas requiere reprogramar la lógica web.</td>
-                                <td>Edición directa de cualquier celda, recálculo automático instantáneo y colaboración multiusuario simultánea.</td>
-                                <td><span class="winner-badge winner-badge--sheets">🏆 Entorno B (Sheets)</span></td>
-                            </tr>
-                            <tr>
-                                <td><strong>5. Personalización y Escalabilidad Gráfica</strong></td>
-                                <td>Libertad total de personalización con Chart.js, paletas HSL a medida, canvas responsive y temas ilimitados.</td>
-                                <td>Limitado a los tipos de gráficos predeterminados y paletas estándar del motor de Google Charts.</td>
-                                <td><span class="winner-badge winner-badge--web">🏆 Entorno A (Web)</span></td>
-                            </tr>
-                            <tr>
-                                <td><strong>6. Accesibilidad para Usuarios No Técnicos</strong></td>
-                                <td>Fácil de consumir como reporte interactivo para directivos o público general en cualquier navegador.</td>
-                                <td>Familiar para analistas de negocio, sin requerir conocimientos de programación o frontend.</td>
-                                <td><span class="winner-badge winner-badge--tie">🤝 Empate Técnico</span></td>
-                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>\(i = 0\)</td><td>10</td><td>520</td></tr>
+                            <tr><td>\(i = 1\)</td><td>20</td><td>430</td></tr>
+                            <tr><td>\(i = 2\)</td><td>40</td><td>280</td></tr>
+                            <tr><td>\(i = 3\)</td><td>60</td><td>155</td></tr>
+                            <tr><td>\(i = 4\)</td><td>80</td><td>68</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Pros & Cons Comparison Cards -->
-            <div class="comparison-grid">
-                <!-- Entorno A Summary -->
-                <div class="comp-card comp-card--web reveal">
-                    <div class="comp-card__header">
-                        <div class="comp-card__icon">🌐</div>
-                        <div>
-                            <div class="comp-card__title">Entorno A: Aplicación Web</div>
-                            <span style="font-size: 0.8rem; color: var(--text-muted);">HTML5 + Vanilla CSS + JS + Chart.js</span>
-                        </div>
-                        <div class="comp-card__score">9.2 / 10</div>
-                    </div>
-                    <ul class="comp-list">
-                        <li><span class="comp-list__check">✓</span> <strong>Experiencia de Usuario Premium:</strong> Presentación ejecutiva inmersiva ideal para dashboards públicos o portafolios.</li>
-                        <li><span class="comp-list__check">✓</span> <strong>Control Gráfico Absoluto:</strong> Estilización pixel-perfect de cada elemento, escala, eje y tooltip.</li>
-                        <li><span class="comp-list__check">✓</span> <strong>Cálculo Cliente Instantáneo:</strong> Procesa miles de registros localmente sin depender de servidores o cuotas API.</li>
-                        <li><span class="comp-list__cross">✗</span> <strong>Mayor Complejidad de Mantenimiento:</strong> Requiere conocimientos de desarrollo web para modificar estructura.</li>
-                    </ul>
+            <!-- Interactive Calculator 2 -->
+            <div class="calculator-card glass-card">
+                <div class="context-header">
+                    <span class="context-icon">🔢</span>
+                    <h3>Calculadora Interactiva</h3>
                 </div>
-
-                <!-- Entorno B Summary -->
-                <div class="comp-card comp-card--sheets reveal">
-                    <div class="comp-card__header">
-                        <div class="comp-card__icon">📊</div>
-                        <div>
-                            <div class="comp-card__title">Entorno B: Google Sheets</div>
-                            <span style="font-size: 0.8rem; color: var(--text-muted);">Cloud Spreadsheet + Gemini Workspace IA</span>
-                        </div>
-                        <div class="comp-card__score">8.5 / 10</div>
-                    </div>
-                    <ul class="comp-list">
-                        <li><span class="comp-list__check">✓</span> <strong>Productividad Inmediata:</strong> La IA crea fórmulas matemáticas y tablas dinámicas listas para auditar en segundos.</li>
-                        <li><span class="comp-list__check">✓</span> <strong>Colaboración en Tiempo Real:</strong> Múltiples analistas pueden ver, editar y comentar datos a la vez en la nube.</li>
-                        <li><span class="comp-list__check">✓</span> <strong>Flexibilidad Operativa:</strong> Permite agregar filas, cambiar valores y probar escenarios "what-if" al instante.</li>
-                        <li><span class="comp-list__cross">✗</span> <strong>Capacidad Visual Limitada:</strong> No permite crear interfaces a medida ni animaciones interactivas complejas.</li>
-                    </ul>
+                <p>Ingresa un número de features para calcular el throughput estimado:</p>
+                <div class="calc-input-group">
+                    <label for="featInput">Nº de Features:</label>
+                    <input type="number" id="featInput" value="35" min="10" max="80" step="1">
+                    <button id="calcBtn2" class="btn-primary btn-cool" onclick="calculateThroughput()">Calcular</button>
                 </div>
-            </div>
-        </div>
-    </section>
-
-    <div class="container"><div class="divider"></div></div>
-
-    <!-- ═══════════════════════════════════════════════
-         SECTION 6: CONCLUSION
-         ═══════════════════════════════════════════════ -->
-    <section class="section" id="conclusion">
-        <div class="container">
-            <div class="section__header reveal">
-                <div class="section__number">06 — Conclusiones Globales</div>
-                <h2 class="section__title">Interpretación de Hallazgos y Veredicto Final</h2>
+                <div id="calcResult2" class="calc-result" style="display:none;"></div>
             </div>
 
-            <div class="conclusion reveal" id="conclusion-card">
-                <!-- Filled by JS -->
+            <!-- Solutions Exercise 2 -->
+            <div class="solutions-container">
+                <!-- 35 features -->
+                <div class="solution-card glass-card" id="sol-feat35">
+                    <div class="solution-header" onclick="toggleSolution('feat35')" style="cursor:pointer;">
+                        <div class="solution-zone zone-feat35-header">
+                            <span>🔷</span> Caso: 35 Features
+                        </div>
+                        <button class="toggle-btn btn-cool-toggle" type="button">
+                            <span class="toggle-icon" id="toggle-feat35">▶</span> Ver Solución
+                        </button>
+                    </div>
+                    <div class="solution-body" id="body-feat35" style="display:none;">
+                        <div class="step" id="step-feat35-content">
+                            <!-- Content injected by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 55 features -->
+                <div class="solution-card glass-card" id="sol-feat55">
+                    <div class="solution-header" onclick="toggleSolution('feat55')" style="cursor:pointer;">
+                        <div class="solution-zone zone-feat55-header">
+                            <span>🔶</span> Caso: 55 Features
+                        </div>
+                        <button class="toggle-btn btn-cool-toggle" type="button">
+                            <span class="toggle-icon" id="toggle-feat55">▶</span> Ver Solución
+                        </button>
+                    </div>
+                    <div class="solution-body" id="body-feat55" style="display:none;">
+                        <div class="step" id="step-feat55-content">
+                            <!-- Content injected by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Summary Exercise 2 -->
+            <div class="results-summary glass-card results-summary-2">
+                <div class="context-header">
+                    <span class="context-icon">📊</span>
+                    <h3>Resumen de Resultados — Ejercicio 2</h3>
+                </div>
+                <div class="results-grid" id="resultsGrid2">
+                    <!-- Filled by JS -->
+                </div>
+                <canvas id="chartCanvas2" class="chart-canvas"></canvas>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
     <footer class="footer">
-        <div class="container footer__inner">
-            <span>Tarea 1 — Comparativa de IA: Entorno A (HTML)</span>
-            <div class="footer__tool">
-                <span class="footer__dot"></span>
-                <span>Generado con IA — Visualización de Datos 2026</span>
-            </div>
+        <div class="container">
+            <p>Interpolación de Lagrange — Métodos Numéricos</p>
+            <p class="footer-sub">La Paz, Bolivia · 2026</p>
         </div>
     </footer>
 
-    <!-- ═══════════════════════════════════════════════
-         JAVASCRIPT - DATA PROCESSING & CHARTS
-         ═══════════════════════════════════════════════ -->
-    <script>
-    // ── CSV DATA (embedded for portability) ──
-    // We embed the CSV data inline so the HTML works standalone without CORS issues.
-    // The data is loaded from the actual Titanic.csv analysis.
-
-    document.addEventListener('DOMContentLoaded', async () => {
-        // ── Parse CSV from fetch or embedded ──
-        let csvText = '';
-        try {
-            const response = await fetch('Titanic.csv');
-            csvText = await response.text();
-        } catch (e) {
-            console.warn('Could not fetch Titanic.csv, using embedded data summary.');
-        }
-
-        let data = [];
-        if (csvText) {
-            const lines = csvText.trim().split('\n');
-            const headers = lines[0].replace(/\r/g, '').split(',');
-            for (let i = 1; i < lines.length; i++) {
-                const values = lines[i].replace(/\r/g, '').split(',');
-                const row = {};
-                headers.forEach((h, idx) => {
-                    row[h.trim()] = values[idx] ? values[idx].trim() : '';
-                });
-                data.push(row);
-            }
-        }
-
-        // ── Data Processing ──
-        const totalRows = data.length;
-        const totalCols = data.length > 0 ? Object.keys(data[0]).length : 27;
-
-        // Parse numeric fields
-        const ages = data.map(d => parseFloat(d['Age'])).filter(v => !isNaN(v));
-        const fares = data.map(d => parseFloat(d['Fare'])).filter(v => !isNaN(v));
-        const survived = data.map(d => parseInt(d['2urvived']));
-        const sex = data.map(d => parseInt(d['Sex'])); // 0=male, 1=female
-        const pclass = data.map(d => parseInt(d['Pclass']));
-        const embarked = data.map(d => d['Embarked']);
-        const sibsp = data.map(d => parseInt(d['sibsp']));
-        const parch = data.map(d => parseInt(d['Parch']));
-
-        // Compute statistics
-        const avgAge = (ages.reduce((a, b) => a + b, 0) / ages.length).toFixed(1);
-        const minAge = Math.min(...ages).toFixed(2);
-        const maxAge = Math.max(...ages);
-        const avgFare = (fares.reduce((a, b) => a + b, 0) / fares.length).toFixed(2);
-        const maxFare = Math.max(...fares).toFixed(2);
-        const minFare = Math.min(...fares).toFixed(2);
-
-        const totalSurvived = survived.filter(v => v === 1).length;
-        const totalDied = survived.filter(v => v === 0).length;
-        const survivalRate = ((totalSurvived / totalRows) * 100).toFixed(1);
-
-        const maleCount = sex.filter(v => v === 0).length;
-        const femaleCount = sex.filter(v => v === 1).length;
-
-        const class1 = pclass.filter(v => v === 1).length;
-        const class2 = pclass.filter(v => v === 2).length;
-        const class3 = pclass.filter(v => v === 3).length;
-
-        // Nulls / zeros count for Fare
-        const zeroFares = fares.filter(v => v === 0).length;
-
-        // Embarked distribution
-        const embC = embarked.filter(v => v === '0').length;
-        const embQ = embarked.filter(v => v === '1').length;
-        const embS = embarked.filter(v => v === '2').length;
-        const embMissing = embarked.filter(v => v === '').length;
-
-        // Survival by sex
-        const maleSurvived = data.filter(d => d['Sex'] === '0' && d['2urvived'] === '1').length;
-        const maleDied = data.filter(d => d['Sex'] === '0' && d['2urvived'] === '0').length;
-        const femaleSurvived = data.filter(d => d['Sex'] === '1' && d['2urvived'] === '1').length;
-        const femaleDied = data.filter(d => d['Sex'] === '1' && d['2urvived'] === '0').length;
-        const femaleSurvRate = ((femaleSurvived / femaleCount) * 100).toFixed(1);
-        const maleSurvRate = ((maleSurvived / maleCount) * 100).toFixed(1);
-
-        // Survival by class
-        const class1Surv = data.filter(d => d['Pclass'] === '1' && d['2urvived'] === '1').length;
-        const class2Surv = data.filter(d => d['Pclass'] === '2' && d['2urvived'] === '1').length;
-        const class3Surv = data.filter(d => d['Pclass'] === '3' && d['2urvived'] === '1').length;
-        const class1SurvRate = ((class1Surv / class1) * 100).toFixed(1);
-        const class2SurvRate = ((class2Surv / class2) * 100).toFixed(1);
-        const class3SurvRate = ((class3Surv / class3) * 100).toFixed(1);
-
-        // Avg fare by class
-        const fareClass1 = data.filter(d => d['Pclass'] === '1').map(d => parseFloat(d['Fare'])).filter(v => !isNaN(v));
-        const fareClass2 = data.filter(d => d['Pclass'] === '2').map(d => parseFloat(d['Fare'])).filter(v => !isNaN(v));
-        const fareClass3 = data.filter(d => d['Pclass'] === '3').map(d => parseFloat(d['Fare'])).filter(v => !isNaN(v));
-        const avgFareC1 = (fareClass1.reduce((a, b) => a + b, 0) / fareClass1.length).toFixed(2);
-        const avgFareC2 = (fareClass2.reduce((a, b) => a + b, 0) / fareClass2.length).toFixed(2);
-        const avgFareC3 = (fareClass3.reduce((a, b) => a + b, 0) / fareClass3.length).toFixed(2);
-
-        // Children analysis
-        const children = data.filter(d => parseFloat(d['Age']) < 16);
-        const childrenSurv = children.filter(d => d['2urvived'] === '1').length;
-        const childrenSurvRate = ((childrenSurv / children.length) * 100).toFixed(1);
-
-        // ═══════════════════════════════════════
-        // RENDER: 5 Characteristics
-        // ═══════════════════════════════════════
-        const statsGrid = document.getElementById('stats-grid');
-        const characteristics = [
-            {
-                icon: '📊',
-                value: `${totalRows.toLocaleString()} × ${totalCols}`,
-                label: 'Dimensiones del Dataset',
-                detail: `${totalRows.toLocaleString()} filas (pasajeros) y ${totalCols} columnas. Variables principales: Age, Fare, Sex, Pclass, Embarked, SibSp, Parch, Survived.`
-            },
-            {
-                icon: '🔢',
-                value: '3 tipos',
-                label: 'Tipos de Variables',
-                detail: `Numéricas continuas (Age, Fare), categóricas codificadas (Sex, Pclass, Embarked) y binarias (Survived). Incluye columnas auxiliares "zero".`
-            },
-            {
-                icon: '⚠️',
-                value: `${zeroFares + embMissing}`,
-                label: 'Valores Nulos / Faltantes',
-                detail: `${zeroFares} registros con Fare = 0 (posibles nulos). ${embMissing} registros sin puerto de embarque. La variable Age usa 28 como valor imputado.`
-            },
-            {
-                icon: '📈',
-                value: `${minAge} — ${maxAge}`,
-                label: 'Rango de Edad (años)',
-                detail: `Edad mínima: ${minAge} años (bebés). Máxima: ${maxAge} años. Promedio: ${avgAge} años. Gran diversidad etaria entre pasajeros.`
-            },
-            {
-                icon: '🎯',
-                value: `${survivalRate}%`,
-                label: 'Tasa de Supervivencia',
-                detail: `De ${totalRows.toLocaleString()} pasajeros, sobrevivieron ${totalSurvived} (${survivalRate}%) y fallecieron ${totalDied} (${(100 - survivalRate).toFixed(1)}%).`
-            }
-        ];
-
-        statsGrid.innerHTML = characteristics.map((c, i) => `
-            <div class="stat-card reveal" style="animation-delay: ${i * 0.1}s">
-                <div class="stat-card__icon">${c.icon}</div>
-                <div class="stat-card__value">${c.value}</div>
-                <div class="stat-card__label">${c.label}</div>
-                <div class="stat-card__detail">${c.detail}</div>
-            </div>
-        `).join('');
-
-        // Variables table
-        const variablesData = [
-            { name: 'Age', type: 'numeric', tag: 'tag--numeric', desc: 'Edad del pasajero', unique: new Set(ages).size, example: '22, 38, 0.75' },
-            { name: 'Fare', type: 'numeric', tag: 'tag--numeric', desc: 'Tarifa pagada por el boleto', unique: new Set(fares).size, example: `7.25 — ${maxFare}` },
-            { name: 'Sex', type: 'binary', tag: 'tag--binary', desc: '0 = Masculino, 1 = Femenino', unique: 2, example: '0, 1' },
-            { name: 'Pclass', type: 'categorical', tag: 'tag--categorical', desc: 'Clase del boleto (1ª, 2ª, 3ª)', unique: 3, example: '1, 2, 3' },
-            { name: 'Embarked', type: 'categorical', tag: 'tag--categorical', desc: 'Puerto: 0=Cherbourg, 1=Queenstown, 2=Southampton', unique: 3, example: '0, 1, 2' },
-            { name: 'SibSp', type: 'numeric', tag: 'tag--numeric', desc: 'Hermanos/Cónyuge a bordo', unique: new Set(sibsp).size, example: '0, 1, 4' },
-            { name: 'Parch', type: 'numeric', tag: 'tag--numeric', desc: 'Padres/Hijos a bordo', unique: new Set(parch).size, example: '0, 1, 2' },
-            { name: '2urvived', type: 'binary', tag: 'tag--binary', desc: '0 = No sobrevivió, 1 = Sobrevivió', unique: 2, example: '0, 1' },
-        ];
-
-        document.getElementById('variables-tbody').innerHTML = variablesData.map(v => `
-            <tr>
-                <td><strong>${v.name}</strong></td>
-                <td><span class="tag ${v.tag}">${v.type}</span></td>
-                <td>${v.desc}</td>
-                <td>${v.unique}</td>
-                <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">${v.example}</td>
-            </tr>
-        `).join('');
-
-        // ═══════════════════════════════════════
-        // RENDER: 3 Q&A
-        // ═══════════════════════════════════════
-        const qaList = document.getElementById('qa-list');
-        const questions = [
-            {
-                q: '¿Cómo influyó el sexo del pasajero en la probabilidad de supervivencia?',
-                answer: `<p>El sexo fue el factor <strong>más determinante</strong> en la supervivencia. Las mujeres tuvieron una tasa de supervivencia del <strong>${femaleSurvRate}%</strong> (${femaleSurvived} de ${femaleCount}), mientras que los hombres solo alcanzaron el <strong>${maleSurvRate}%</strong> (${maleSurvived} de ${maleCount}). Esto refleja la política de "mujeres y niños primero" aplicada durante la evacuación del Titanic.</p>`,
-                highlight: `Mujeres: ${femaleSurvRate}% vs Hombres: ${maleSurvRate}%`
-            },
-            {
-                q: '¿Qué relación existe entre la clase socioeconómica (Pclass) y la supervivencia?',
-                answer: `<p>La clase del boleto mostró una <strong>correlación clara</strong> con la supervivencia. Los pasajeros de <strong>1ª clase</strong> sobrevivieron en un <strong>${class1SurvRate}%</strong> (${class1Surv} de ${class1}), los de <strong>2ª clase</strong> en un <strong>${class2SurvRate}%</strong> (${class2Surv} de ${class2}), y los de <strong>3ª clase</strong> apenas en un <strong>${class3SurvRate}%</strong> (${class3Surv} de ${class3}). La ubicación de los camarotes de primera clase, más cercanos a la cubierta, facilitó la evacuación.</p>`,
-                highlight: `1ª: ${class1SurvRate}% · 2ª: ${class2SurvRate}% · 3ª: ${class3SurvRate}%`
-            },
-            {
-                q: '¿Los niños tuvieron mayor probabilidad de sobrevivir que los adultos?',
-                answer: `<p>Sí. De los <strong>${children.length} menores de 16 años</strong>, sobrevivieron <strong>${childrenSurv}</strong>, equivalente a una tasa del <strong>${childrenSurvRate}%</strong>. Comparado con la tasa general del ${survivalRate}%, los niños tuvieron ${parseFloat(childrenSurvRate) > parseFloat(survivalRate) ? 'una ventaja significativa' : 'una tasa similar'}. Además, la tarifa promedio general fue de <strong>$${avgFare}</strong>, con un rango de $${minFare} a $${maxFare}, lo que indica una gran disparidad económica entre pasajeros.</p>`,
-                highlight: `Niños (<16 años): ${childrenSurvRate}% supervivencia`
-            }
-        ];
-
-        qaList.innerHTML = questions.map((item, i) => `
-            <div class="qa-card reveal" style="animation-delay: ${i * 0.15}s">
-                <div class="qa-card__question">
-                    <div class="qa-card__q-icon">P${i + 1}</div>
-                    <div class="qa-card__q-text">${item.q}</div>
-                </div>
-                <div class="qa-card__answer">
-                    ${item.answer}
-                    <div class="qa-card__highlight">📌 ${item.highlight}</div>
-                </div>
-            </div>
-        `).join('');
-
-        // ═══════════════════════════════════════
-        // RENDER: Conclusion
-        // ═══════════════════════════════════════
-        document.getElementById('conclusion-card').innerHTML = `
-            <div class="conclusion__icon">💡</div>
-            <h3 class="conclusion__title">Conclusión del Análisis</h3>
-            <p class="conclusion__text">
-                El análisis del dataset del Titanic con <strong>1,310 pasajeros</strong> revela patrones claros de desigualdad social
-                en la tragedia marítima. Los datos muestran que la supervivencia estuvo fuertemente condicionada por tres factores:
-            </p>
-            <ul class="conclusion__bullets">
-                <li><strong>Sexo:</strong> Las mujeres tuvieron una probabilidad de supervivencia ${femaleSurvRate}% vs ${maleSurvRate}% de los hombres, confirmando la aplicación del protocolo "mujeres y niños primero".</li>
-                <li><strong>Clase socioeconómica:</strong> La 1ª clase alcanzó ${class1SurvRate}% de supervivencia, más del doble que la 3ª clase (${class3SurvRate}%), evidenciando cómo el acceso a los botes salvavidas fue desigual.</li>
-                <li><strong>Edad:</strong> Los niños menores de 16 años sobrevivieron en un ${childrenSurvRate}%, superior a la tasa general del ${survivalRate}%. La edad promedio fue ${avgAge} años con un rango de ${minAge} a ${maxAge} años.</li>
-                <li><strong>Tarifa:</strong> La tarifa promedio de 1ª clase ($${avgFareC1}) fue ${(avgFareC1 / avgFareC3).toFixed(0)}x mayor que la de 3ª clase ($${avgFareC3}), reflejando una profunda brecha económica.</li>
-            </ul>
-            <p class="conclusion__text" style="margin-top: 16px;">
-                En resumen, <strong>ser mujer, viajar en primera clase y ser joven</strong> fueron los factores que más aumentaron
-                la probabilidad de sobrevivir al hundimiento del Titanic. Este análisis demuestra cómo la visualización de datos
-                permite descubrir patrones que los números planos no revelan fácilmente.
-            </p>
-        `;
-
-        // ═══════════════════════════════════════
-        // CHARTS
-        // ═══════════════════════════════════════
-
-        // Chart defaults
-        Chart.defaults.color = '#9ba3bf';
-        Chart.defaults.font.family = "'Inter', sans-serif";
-        Chart.defaults.plugins.legend.labels.padding = 16;
-        Chart.defaults.plugins.legend.labels.usePointStyle = true;
-        Chart.defaults.plugins.legend.labels.pointStyle = 'rectRounded';
-
-        // ── Chart 1: Survival by Sex ──
-        new Chart(document.getElementById('chart-survival-sex'), {
-            type: 'bar',
-            data: {
-                labels: ['Hombres', 'Mujeres'],
-                datasets: [
-                    {
-                        label: 'Sobrevivieron',
-                        data: [maleSurvived, femaleSurvived],
-                        backgroundColor: ['rgba(99,128,255,0.8)', 'rgba(167,139,250,0.8)'],
-                        borderRadius: 8,
-                        borderSkipped: false,
-                    },
-                    {
-                        label: 'Fallecieron',
-                        data: [maleDied, femaleDied],
-                        backgroundColor: ['rgba(99,128,255,0.25)', 'rgba(167,139,250,0.25)'],
-                        borderRadius: 8,
-                        borderSkipped: false,
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    tooltip: {
-                        backgroundColor: 'rgba(17,24,39,0.95)',
-                        borderColor: 'rgba(99,128,255,0.3)',
-                        borderWidth: 1,
-                        titleFont: { weight: '600' },
-                        padding: 12,
-                        cornerRadius: 10,
-                    }
-                },
-                scales: {
-                    x: { grid: { color: 'rgba(99,128,255,0.06)' }, border: { color: 'rgba(99,128,255,0.1)' } },
-                    y: { grid: { color: 'rgba(99,128,255,0.06)' }, border: { color: 'rgba(99,128,255,0.1)' }, beginAtZero: true }
-                }
-            }
-        });
-
-        // ── Chart 2: Survival by Class ──
-        new Chart(document.getElementById('chart-survival-class'), {
-            type: 'bar',
-            data: {
-                labels: ['1ª Clase', '2ª Clase', '3ª Clase'],
-                datasets: [
-                    {
-                        label: 'Tasa de Supervivencia (%)',
-                        data: [parseFloat(class1SurvRate), parseFloat(class2SurvRate), parseFloat(class3SurvRate)],
-                        backgroundColor: [
-                            'rgba(52,211,153,0.8)',
-                            'rgba(251,191,36,0.8)',
-                            'rgba(251,113,133,0.8)'
-                        ],
-                        borderRadius: 8,
-                        borderSkipped: false,
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    tooltip: {
-                        backgroundColor: 'rgba(17,24,39,0.95)',
-                        borderColor: 'rgba(99,128,255,0.3)',
-                        borderWidth: 1,
-                        padding: 12,
-                        cornerRadius: 10,
-                        callbacks: {
-                            label: (ctx) => `${ctx.parsed.y}% de supervivencia`
-                        }
-                    }
-                },
-                scales: {
-                    x: { grid: { color: 'rgba(99,128,255,0.06)' }, border: { color: 'rgba(99,128,255,0.1)' } },
-                    y: { grid: { color: 'rgba(99,128,255,0.06)' }, border: { color: 'rgba(99,128,255,0.1)' }, beginAtZero: true, max: 100,
-                        ticks: { callback: (v) => v + '%' }
-                    }
-                }
-            }
-        });
-
-        // ── Chart 3: Age Distribution (Histogram) ──
-        const ageBins = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85];
-        const ageHistSurv = new Array(ageBins.length - 1).fill(0);
-        const ageHistDied = new Array(ageBins.length - 1).fill(0);
-
-        data.forEach(d => {
-            const age = parseFloat(d['Age']);
-            if (isNaN(age)) return;
-            for (let b = 0; b < ageBins.length - 1; b++) {
-                if (age >= ageBins[b] && age < ageBins[b + 1]) {
-                    if (d['2urvived'] === '1') ageHistSurv[b]++;
-                    else ageHistDied[b]++;
-                    break;
-                }
-            }
-        });
-
-        const ageLabels = ageBins.slice(0, -1).map((b, i) => `${b}-${ageBins[i + 1]}`);
-
-        new Chart(document.getElementById('chart-age-dist'), {
-            type: 'bar',
-            data: {
-                labels: ageLabels,
-                datasets: [
-                    {
-                        label: 'Sobrevivieron',
-                        data: ageHistSurv,
-                        backgroundColor: 'rgba(56,189,248,0.7)',
-                        borderRadius: 4,
-                        borderSkipped: false,
-                    },
-                    {
-                        label: 'Fallecieron',
-                        data: ageHistDied,
-                        backgroundColor: 'rgba(251,113,133,0.5)',
-                        borderRadius: 4,
-                        borderSkipped: false,
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    tooltip: {
-                        backgroundColor: 'rgba(17,24,39,0.95)',
-                        borderColor: 'rgba(99,128,255,0.3)',
-                        borderWidth: 1,
-                        padding: 12,
-                        cornerRadius: 10,
-                    }
-                },
-                scales: {
-                    x: {
-                        grid: { color: 'rgba(99,128,255,0.06)' },
-                        border: { color: 'rgba(99,128,255,0.1)' },
-                        stacked: true,
-                        title: { display: true, text: 'Rango de Edad', color: '#9ba3bf', font: { weight: '500' } }
-                    },
-                    y: {
-                        grid: { color: 'rgba(99,128,255,0.06)' },
-                        border: { color: 'rgba(99,128,255,0.1)' },
-                        stacked: true,
-                        beginAtZero: true,
-                        title: { display: true, text: 'Cantidad de Pasajeros', color: '#9ba3bf', font: { weight: '500' } }
-                    }
-                }
-            }
-        });
-
-        // ── Chart 4: Embarked (Doughnut) ──
-        new Chart(document.getElementById('chart-embarked'), {
-            type: 'doughnut',
-            data: {
-                labels: ['Cherbourg (C)', 'Queenstown (Q)', 'Southampton (S)', 'Sin datos'],
-                datasets: [{
-                    data: [embC, embQ, embS, embMissing],
-                    backgroundColor: [
-                        'rgba(99,128,255,0.8)',
-                        'rgba(167,139,250,0.8)',
-                        'rgba(52,211,153,0.8)',
-                        'rgba(92,99,128,0.4)'
-                    ],
-                    borderColor: 'rgba(26,32,53,1)',
-                    borderWidth: 3,
-                    hoverOffset: 8,
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                cutout: '60%',
-                plugins: {
-                    tooltip: {
-                        backgroundColor: 'rgba(17,24,39,0.95)',
-                        borderColor: 'rgba(99,128,255,0.3)',
-                        borderWidth: 1,
-                        padding: 12,
-                        cornerRadius: 10,
-                        callbacks: {
-                            label: (ctx) => {
-                                const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
-                                const pct = ((ctx.parsed / total) * 100).toFixed(1);
-                                return `${ctx.label}: ${ctx.parsed} (${pct}%)`;
-                            }
-                        }
-                    },
-                    legend: {
-                        position: 'bottom',
-                        labels: { padding: 20, font: { size: 12 } }
-                    }
-                }
-            }
-        });
-
-        // ── Chart 5: Average Fare by Class ──
-        new Chart(document.getElementById('chart-fare-class'), {
-            type: 'bar',
-            data: {
-                labels: ['1ª Clase', '2ª Clase', '3ª Clase'],
-                datasets: [{
-                    label: 'Tarifa Promedio ($)',
-                    data: [parseFloat(avgFareC1), parseFloat(avgFareC2), parseFloat(avgFareC3)],
-                    backgroundColor: [
-                        'rgba(251,191,36,0.8)',
-                        'rgba(56,189,248,0.8)',
-                        'rgba(167,139,250,0.8)'
-                    ],
-                    borderRadius: 8,
-                    borderSkipped: false,
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    tooltip: {
-                        backgroundColor: 'rgba(17,24,39,0.95)',
-                        borderColor: 'rgba(99,128,255,0.3)',
-                        borderWidth: 1,
-                        padding: 12,
-                        cornerRadius: 10,
-                        callbacks: {
-                            label: (ctx) => `$${ctx.parsed.y.toFixed(2)}`
-                        }
-                    }
-                },
-                scales: {
-                    x: { grid: { color: 'rgba(99,128,255,0.06)' }, border: { color: 'rgba(99,128,255,0.1)' } },
-                    y: {
-                        grid: { color: 'rgba(99,128,255,0.06)' },
-                        border: { color: 'rgba(99,128,255,0.1)' },
-                        beginAtZero: true,
-                        ticks: { callback: (v) => '$' + v }
-                    }
-                }
-            }
-        });
-
-        // ── Chart 6: Radar Benchmark Comparison (Web vs Sheets) ──
-        const radarCanvas = document.getElementById('chart-radar-ia');
-        if (radarCanvas) {
-            new Chart(radarCanvas, {
-                type: 'radar',
-                data: {
-                    labels: [
-                        'Diseño & UI/UX',
-                        'Interactividad',
-                        'Velocidad Creación',
-                        'Edición en Vivo',
-                        'Personalización',
-                        'Accesibilidad Analítica'
-                    ],
-                    datasets: [
-                        {
-                            label: 'Entorno A: Web (HTML/JS/Chart.js)',
-                            data: [9.8, 9.5, 7.8, 6.0, 9.8, 7.5],
-                            fill: true,
-                            backgroundColor: 'rgba(99, 128, 255, 0.2)',
-                            borderColor: 'rgba(99, 128, 255, 1)',
-                            pointBackgroundColor: 'rgba(99, 128, 255, 1)',
-                            pointBorderColor: '#fff',
-                            pointHoverBackgroundColor: '#fff',
-                            pointHoverBorderColor: 'rgba(99, 128, 255, 1)',
-                            borderWidth: 2
-                        },
-                        {
-                            label: 'Entorno B: Google Sheets (Gemini)',
-                            data: [6.2, 6.0, 9.2, 9.8, 5.5, 9.5],
-                            fill: true,
-                            backgroundColor: 'rgba(15, 157, 88, 0.2)',
-                            borderColor: 'rgba(52, 211, 153, 1)',
-                            pointBackgroundColor: 'rgba(52, 211, 153, 1)',
-                            pointBorderColor: '#fff',
-                            pointHoverBackgroundColor: '#fff',
-                            pointHoverBorderColor: 'rgba(52, 211, 153, 1)',
-                            borderWidth: 2
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        r: {
-                            angleLines: { color: 'rgba(99, 128, 255, 0.15)' },
-                            grid: { color: 'rgba(99, 128, 255, 0.1)' },
-                            pointLabels: {
-                                color: 'rgba(240, 246, 252, 0.85)',
-                                font: { size: 12, weight: '600' }
-                            },
-                            ticks: {
-                                backdropColor: 'transparent',
-                                color: 'rgba(148, 163, 184, 0.7)',
-                                stepSize: 2,
-                                min: 0,
-                                max: 10
-                            },
-                            suggestedMin: 0,
-                            suggestedMax: 10
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                color: '#f0f6fc',
-                                padding: 16,
-                                font: { size: 12, weight: '600' }
-                            }
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(17,24,39,0.95)',
-                            borderColor: 'rgba(99,128,255,0.3)',
-                            borderWidth: 1,
-                            padding: 10,
-                            cornerRadius: 8
-                        }
-                    }
-                }
-            });
-        }
-
-        // ═══════════════════════════════════════
-        // SCROLL REVEAL ANIMATION
-        // ═══════════════════════════════════════
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-
-        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-        // ═══════════════════════════════════════
-        // HIDE LOADING
-        // ═══════════════════════════════════════
-        setTimeout(() => {
-            document.getElementById('loading').classList.add('hidden');
-        }, 600);
-    });
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>
